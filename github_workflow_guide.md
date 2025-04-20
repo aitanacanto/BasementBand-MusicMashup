@@ -1,9 +1,6 @@
 
 # 🎓 GitHub Workflow Guide for Our Music Mashup Project
 
-Welcome to the team! This guide will help you use GitHub properly throughout our project. Don’t worry if you’ve never used it before — follow the steps carefully and ask me if you get stuck 😊
-
----
 
 ## 🚧 Our Branching Strategy
 
@@ -25,16 +22,6 @@ We will use the following branches:
 ### 👤 Your personal branch (`yourname`)
 - Everyone will have their own branch named after them.
 - You’ll work on this branch and commit your code changes regularly.
-
-**Example branch names:**
-```
-aitana
-pablo
-sofia
-lucas
-maria
-david
-```
 
 ---
 
