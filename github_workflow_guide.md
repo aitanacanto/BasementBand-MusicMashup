@@ -29,8 +29,8 @@ We will use the following branches:
 
 1. 🔽 **Clone the repository** to your computer:
 ```bash
-git clone https://github.com/username/music-mashup-project.git
-cd music-mashup-project
+git clone https://github.com/username/Music_Mashup-241_project.git
+cd Music_Mashup-241_project
 ```
 
 2. 🆕 **Create your personal branch:**
