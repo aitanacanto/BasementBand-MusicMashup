@@ -1,0 +1,21 @@
+# Node dependencies
+node_modules/
+
+# Build outputs
+dist/
+build/
+
+# Logs
+*.log
+
+# Environment variables
+.env
+
+# OS-specific files
+.DS_Store
+
+# TypeScript
+*.tsbuildinfo
+
+# Temp files
+*.tmp
