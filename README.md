@@ -24,7 +24,7 @@ If your port is occupied terminate whatever is running on it.
 
 ## Running frontend
 
-type: npm run dev
+type: npm start
 This will run the development script and start the frontend
 
 Frontend should run on port 3000 unless there is something else running on that port. If this is the case REACT will ask you if you want to run the frontend on a different port.
