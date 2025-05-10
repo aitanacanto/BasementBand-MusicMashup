@@ -1,10 +1,10 @@
-import express, { Request, Response as ExpressResponse, Router } from "express";
+import express, { Request, Response } from "express";
 import fetch from "node-fetch";
 
 
 export const MBIDRoute = express.Router();
 
-MBIDRoute.get('/MBID/:title/:artist', async (req: Request, res: ExpressResponse) => {
+MBIDRoute.get('/MBID/:title/:artist', async (req: Request, res: Response) => {
   let title : string = req.params.title;
   let artist : string = req.params.artist;
   let requestURL : string = `https://musicbrainz.org/ws/2/recording/?query=recording:${title}%20AND%20artist:${artist}`;
