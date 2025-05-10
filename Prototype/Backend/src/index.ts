@@ -17,6 +17,7 @@ app.get(/(.*)/, (req: Request, res: Response) => {
     
 app.listen(port, () => {
     console.log(`Backend running on http://localhost:${port}`);
+    console.log("to run on a different port, type 'PORT=<port number> npm run dev'");
 });
 
 export default app;
