@@ -8,24 +8,18 @@ MBIDRoute.get('/MBID/:title/:artist', async (req: Request, res: ExpressResponse)
   let title : string = req.params.title;
   let artist : string = req.params.artist;
   let requestURL : string = `https://musicbrainz.org/ws/2/recording/?query=recording:${title}%20AND%20artist:${artist}`;
-  let testURL : string = `https://musicbrainz.org/ws/2/recording/?query=recording:ilomilo%20AND%20artist:billie%20eilish`;
   let MBID : string | null;
-  console.log(requestURL);
 
-  (async () => {
-    try {
-      MBID = await getMBID(testURL);
-      console.log(MBID);
-      res.json({ MBID });
-    } catch (error) {
-      res.status(500).json({ error: "Failed to fetch MusicBrainz ID" });
-    }
-  });
+  try {
+    MBID = await getMBID(requestURL);
+    res.json({ MBID });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to fetch MusicBrainz ID" });
+  }
 });
 
 async function getMBID(requestURL: string): Promise<string | null> {
   try {
-    console.log("hi");
     const res = await fetch(requestURL, {
       headers: {
         "Accept": "application/json",
