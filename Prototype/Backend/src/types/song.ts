@@ -1,8 +1,10 @@
 export interface Song {
-    id: string,
-    title: string ,
+    mbid: string,
+    title: string,
     artist: string,
-    mood: string | null,
     key: string,
-    bpm: number
+    key_scale: string,
+    bpm: number,
+    genre: string,
+    danceability: string
 }
