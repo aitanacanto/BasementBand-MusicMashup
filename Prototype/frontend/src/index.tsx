@@ -1,17 +1,21 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { BrowserRouter } from 'react-router-dom';
-import './index.css';
-import Home from './pages/Home.tsx';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
-const root = ReactDOM.createRoot(
-  document.getElementById('root') as HTMLElement
-);
+import Home from './pages/Home';
+import AutoGenerate from './pages/AutoGenerate';
+import './index.css';
+
+const root = ReactDOM.createRoot(document.getElementById('root')!);
 
 root.render(
   <React.StrictMode>
     <BrowserRouter>
-      <Home />
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/autogenerate" element={<AutoGenerate />} />
+        {}
+      </Routes>
     </BrowserRouter>
   </React.StrictMode>
 );
