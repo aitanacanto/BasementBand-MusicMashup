@@ -1,7 +1,7 @@
 import { downloadYoutubeAudio  } from './services/ytDownloadService';
 import express, { Request, Response } from 'express';
 import cors from 'cors';
-<<<<<<< HEAD
+import { routes } from './routes';
 const cookieParser = require('cookie-parser');
 const { v4: uuidv4 } = require('uuid');
 const fs = require('fs'); // Import the file system module
@@ -24,12 +24,7 @@ const CLEAR_COOKIES_INTERVAL = 10 * 60 * 1000;
 
 const port = process.env.PORT || 5000;
 
-=======
-import { routes } from './routes';
 
-const app = express();
-
->>>>>>> 773a03c9d7ec8ef4e869dbad45ecd36c0a6d169b
 app.use(express.json());
 app.use(cors());
 app.use(cookieParser());
@@ -124,12 +119,11 @@ const cleanExpiredCookies = () => {
 setInterval(cleanExpiredCookies, CLEAR_COOKIES_INTERVAL);
 
 
-<<<<<<< HEAD
 app.get('/', (req: Request, res: Response) => {
     let sessionId: string  = req.cookies[COOKIE_NAME];
     if(sessionId){
         const userFilePath = path.join(MEDIA_FILE_PATH, sessionId);
-        downloadYoutubeAudio("Trust", "Megadeath", userFilePath);
+        downloadYoutubeAudio("Enter Sandman", "Metallica", userFilePath);
     }
     res.json('This is the backend talking to the frontend');
 });
@@ -148,15 +142,13 @@ app.get('/download/', (req: Request, res: Response) => {
     downloadYoutubeAudio(songTitle, artist, userFilePath);
 });
 
-=======
+
 app.use("/", routes);
 
-const port = process.env.PORT || 5000;
 
 app.get(/(.*)/, (req: Request, res: Response) => {
     res.status(404).send('<h1>404! Page not found</h1>');;
 });
->>>>>>> 773a03c9d7ec8ef4e869dbad45ecd36c0a6d169b
     
 app.listen(port, () => {
     console.log(`Backend running on http://localhost:${port}`);
