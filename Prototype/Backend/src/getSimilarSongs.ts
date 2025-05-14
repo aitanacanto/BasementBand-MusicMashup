@@ -1,18 +1,17 @@
-import fetch from "node-fetch";
+import axios from 'axios';
 import { SimilarSongsResponse } from './types/SimilarSongsResponse';
 import { Song } from './types/song';
 import { parseLowLevelResponseToSongs } from "./LowLevelResponse";
 
 export async function getSimilarSongs(MBID: string, requestURL: string): Promise<Array<string> | null> {
     try {
-      const res = await fetch(requestURL, {
+      const res = await axios.get(requestURL, {
         headers: {
           "Accept": "application/json",
           "User-Agent": "Music_Mashup_project/1.0.0 (frankiechristie314@gmail.com)" //musicbrainz requires a user agent identifier in case of issues
         }
       });
-      const rawData = await res.json();
-      const data = new SimilarSongsResponse(rawData as { 
+      const data = new SimilarSongsResponse(res.data as { 
         [sourceMbid: string]: {
           ["0"]: Array<{
             recording_mbid: string;
@@ -44,14 +43,13 @@ async function sortByMetric(mbids : Array<string>, metric : string) : Promise<Ar
         requestURL += mbid + ";";
       });
       requestURL += "&features=metadata.tags;rhythm.bpm;tonal.key_key;tonal.key_scale;rhythm.danceability";
-      const res = await fetch(requestURL, {
+      const res = await axios.get(requestURL, {
         headers: {
           "Accept": "application/json",
           "User-Agent": "Music_Mashup_project/1.0.0 (frankiechristie314@gmail.com)" //musicbrainz requires a user agent identifier in case of issues
         }
       })
-      const rawData = await res.json();
-      const songs: Song[] = parseLowLevelResponseToSongs(rawData);
+      const songs: Song[] = parseLowLevelResponseToSongs(res.data);
       console.log(songs);
       return songs;
       //CONTINUE HERE

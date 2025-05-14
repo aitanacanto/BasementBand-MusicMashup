@@ -1,4 +1,4 @@
-import fetch from "node-fetch";
+import axios from 'axios';
 
 export async function getMBID(title: string, artist: string | null = null): Promise<string | null> {
     try {
@@ -9,14 +9,14 @@ export async function getMBID(title: string, artist: string | null = null): Prom
         requestURL.concat(` AND artist:${artist}`);
       }
 
-      const res = await fetch(`${baseURL}${encodeURIComponent(requestURL)}&fmt=json`, {
+      const res = await axios.get(`${baseURL}${encodeURIComponent(requestURL)}&fmt=json`, {
         headers: {
           "Accept": "application/json",
           "User-Agent": "Music_Mashup_project/1.0.0 (frankiechristie314@gmail.com)" //musicbrainz requires a user agent identifier in case of issues
         }
       });
 
-      const data = await res.json() as MusicBrainzRecording;
+      const data = res.data as MusicBrainzRecording;
   
       return data.recordings[0].id ?? null;
       
