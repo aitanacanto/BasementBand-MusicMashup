@@ -1,20 +1,27 @@
 import express, { Request, Response } from 'express';
 import cors from 'cors';
+import { routes } from './routes';
 
 const app = express();
-
-const port = process.env.PORT || 5000;
 
 app.use(express.json());
 app.use(cors());
 
-app.get('/', (req: Request, res: Response) => {
-    res.json('This is the backend talking to the frontend');
-});
+app.use("/", routes);
 
+const port = process.env.PORT || 5000;
+
+app.get(/(.*)/, (req: Request, res: Response) => {
+    res.status(404).send('<h1>404! Page not found</h1>');;
+});
     
 app.listen(port, () => {
     console.log(`Backend running on http://localhost:${port}`);
+    console.log("to run on a different port, type 'PORT=<port number> npm run dev'");
 });
+
+export default app;
+
+
 
 
