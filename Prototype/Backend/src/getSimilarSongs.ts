@@ -3,7 +3,7 @@ import { SimilarSongsResponse } from './types/SimilarSongsResponse';
 import { Song } from './types/song';
 import { parseLowLevelResponseToSongs } from "./LowLevelResponse";
 
-export async function getSimilarSongs(requestURL: string): Promise<Array<string> | null> {
+export async function getSimilarSongs(MBID: string, requestURL: string): Promise<Array<string> | null> {
     try {
       const res = await fetch(requestURL, {
         headers: {
@@ -13,11 +13,16 @@ export async function getSimilarSongs(requestURL: string): Promise<Array<string>
       });
       const rawData = await res.json();
       const data = new SimilarSongsResponse(rawData as { 
-        [sourceMbid: string]: { 
-          "0": { recording_mbid: string }[]; 
-        } 
+        [sourceMbid: string]: {
+          ["0"]: Array<{
+            recording_mbid: string;
+            distance: number;
+            offset: number;
+          }>;
+        };
       });
       let mbids : Array<string> | null = data.ToList();
+      mbids.unshift(MBID);
       const metric : string = "bpm";
       const songs : Array<Song> | null = await sortByMetric(mbids, metric);
 
