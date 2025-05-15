@@ -1,6 +1,6 @@
 import axios from 'axios';
-import { SimilarSongsResponse } from './types/SimilarSongsResponse';
-import { Song } from './types/song';
+import { SimilarSongsResponse } from '../../types/SimilarSongsResponse';
+import { Song } from '../../types/song';
 import { parseLowLevelResponseToSongs } from "./LowLevelResponse";
 
 export async function getSimilarSongs(MBID: string, requestURL: string): Promise<Array<string> | null> {

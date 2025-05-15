@@ -1,5 +1,5 @@
 import express, { Request, Response } from "express";
-import { getSimilarSongs } from "../getSimilarSongs";
+import { getSimilarSongs } from "../../services/acousticBrainz/getSimilarSongs";
 
 export const SimilarityRouter = express.Router();
 
