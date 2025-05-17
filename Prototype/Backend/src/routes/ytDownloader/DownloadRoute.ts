@@ -1,8 +1,6 @@
 import express, { Request, Response } from "express";
 import path from "path";
 import { downloadYoutubeAudio } from "../../services/ytDownloader/ytDownloadService";
-import fs from 'fs'; 
-import { MEDIA_FILE_PATH } from "../..";
 
 export const DownloadRoute = express.Router();
 
@@ -19,7 +17,8 @@ DownloadRoute.get('/Download/:title/:artist', async (req: Request, res: Response
     if(sessionId){
         try{
             //Passes the relative path 
-            const downloadFolderpath: string = path.join(sessionId, "raw");
+            //Posix uses / instead of \ which is necesary 
+            const downloadFolderpath: string = path.posix.join(sessionId, "raw");
             const songTitle: string = req.params.title;
             const artist: string = req.params.artist;
             //Both artist and song title are required by this route because musicbrainz provides artist given the song title

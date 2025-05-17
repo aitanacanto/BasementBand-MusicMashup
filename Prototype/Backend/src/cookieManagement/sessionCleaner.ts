@@ -14,7 +14,7 @@ export const cleanExpiredCookies = (sessions: Map<string, number>) => {
     for (const [sessionId, expirationTimestamp] of sessions.entries()) {
         //If the cookie is expired
         if (expirationTimestamp < now) {
-            const userFilePath = path.join(MEDIA_FILE_PATH, sessionId);
+            const userFilePath = path.posix.join(MEDIA_FILE_PATH, sessionId);
             //Remove users directory from the file system
             fs.rm(userFilePath, { recursive: true, force: true }, (error) => {
                 if (error) {

@@ -12,7 +12,7 @@ export const downloadYoutubeAudio = async (songTitle: string, songArtist: string
         //%(title) tells yt-dlp to name the file the song name.mp3
         //the output path is the relative path to the media folder
         console.log(MEDIA_FILE_PATH)
-        const outputPath = path.join(MEDIA_FILE_PATH, folderPath, `%(title)s.%(ext)s`);
+        const outputPath = path.posix.join(MEDIA_FILE_PATH, folderPath, `%(title)s.%(ext)s`);
         const args: string[] = [
             "-x",
             "--audio-format",
@@ -29,16 +29,18 @@ export const downloadYoutubeAudio = async (songTitle: string, songArtist: string
         let stderrOutput = '';
         let stdoutJson = ''; 
 
+        //Reads the yt-dlp output to the console
         ytdlpProcess.stdout.on('data', (data: Buffer) => {
-            //Reads the console output 
             stdoutJson += data.toString();
         });
 
+        //Ouputs yt-dlp error log to console
         ytdlpProcess.stderr.on('data', (data: Buffer) => {
             stderrOutput += data.toString();
             console.error(`yt-dlp stderr: ${data.toString().trim()}`);
         });
 
+        //Ouputs yt-dlp hard errors
         ytdlpProcess.on('error', (err: Error) => {
             console.error(`Failed to start yt-dlp process: ${err.message}`);
             reject(new Error(`Failed to start download process: ${err.message}`));
@@ -51,7 +53,7 @@ export const downloadYoutubeAudio = async (songTitle: string, songArtist: string
                     //We want to only pass the relative file path to the frontend
                     const videoInfo = JSON.parse(stdoutJson);
                     //extension is always .mp3
-                    const relativeFolderPath = path.join(folderPath, `${videoInfo?.fulltitle}.mp3`);
+                    const relativeFolderPath = path.posix.join(folderPath, `${videoInfo?.fulltitle}.mp3`);
                     //Sends only the relative file path to be stored as a reference on the frontend and minimise information disclosure
                     resolve(relativeFolderPath);
                 } catch (jsonError: any) {
@@ -60,7 +62,6 @@ export const downloadYoutubeAudio = async (songTitle: string, songArtist: string
                     reject(new Error(`Download succeeded, but there was an error processing the download information.`));
                 }
             } else {
-                // Process exited with an error code
                 const errorReason = stderrOutput || `Process exited with code ${code}`;
                 reject(new Error(`Download failed for "${songTitle}" by "${songArtist}": ${errorReason}`));
             }

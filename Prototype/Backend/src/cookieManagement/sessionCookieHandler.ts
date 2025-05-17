@@ -39,7 +39,7 @@ export const sessionCookieHandler = (req: Request, res: Response, next: NextFunc
     } else {
         if (sessionId && (storedSessionExpiration === undefined || storedSessionExpiration < now)) {
             console.log(`Attempting cleanup for invalid or expired session ID: ${sessionId}`);
-            const expiredUserFilePath = path.join(MEDIA_FILE_PATH, sessionId);
+            const expiredUserFilePath = path.posix.join(MEDIA_FILE_PATH, sessionId);
 
             fs.rm(expiredUserFilePath, { recursive: true, force: true }, (error) => {
                 if (error) {
@@ -61,15 +61,15 @@ export const sessionCookieHandler = (req: Request, res: Response, next: NextFunc
         //Adding new cookie to the sessions map
         sessions.set(sessionId, now + COOKIE_AGE);
 
-        const userFilePath = path.join(MEDIA_FILE_PATH, sessionId);
+        const userFilePath = path.posix.join(MEDIA_FILE_PATH, sessionId);
         console.log("Dir: " + userFilePath)
         try {
             //Create user directory
             fs.mkdirSync(userFilePath, { recursive: true });
             //Subdirectories of user dir
-            fs.mkdirSync(path.join(userFilePath, "raw"), { recursive: true });
-            fs.mkdirSync(path.join(userFilePath, "stems"), { recursive: true });
-            fs.mkdirSync(path.join(userFilePath, "altered"), { recursive: true });
+            fs.mkdirSync(path.posix.join(userFilePath, "raw"), { recursive: true });
+            fs.mkdirSync(path.posix.join(userFilePath, "stems"), { recursive: true });
+            fs.mkdirSync(path.posix.join(userFilePath, "altered"), { recursive: true });
 
             console.log(`Success creating user directory structure for new session ${sessionId} at: ${userFilePath}`);
 
