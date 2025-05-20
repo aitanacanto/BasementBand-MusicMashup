@@ -26,7 +26,10 @@ export async function getSimilarSongs(MBID: string, requestURL: string): Promise
       if (songs === null) {
         return null;
       }
-      songs.sort((a, b) => b.bpm - a.bpm);
+      //sort by similarity to original song's BPM
+      const original = songs.find(s => s.mbid === MBID);
+      let targetBPM = original?.bpm ?? songs[0].bpm;
+      songs.sort((a, b) => Math.abs(a.bpm - targetBPM) - Math.abs(b.bpm - targetBPM));
 
       return songs
       
