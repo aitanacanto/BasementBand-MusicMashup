@@ -19,7 +19,8 @@ export function parseLowLevelResponseToSongs(data: any): Song[] {
         key_scale: tonal.key_scale ?? "Unknown",
         bpm: rhythm.bpm ?? 0,
         genre: tags.genre?.[0] ?? "Unknown",
-        danceability: rhythm.danceability?.toString() ?? "Unknown"
+        danceability: rhythm.danceability?.toString() ?? "Unknown",
+        first_beat: rhythm.beats_position?.[0]
       });
     }
   

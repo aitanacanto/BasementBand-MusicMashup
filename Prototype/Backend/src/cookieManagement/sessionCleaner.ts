@@ -1,4 +1,4 @@
-import { MEDIA_FILE_PATH } from "../routes/utility/GetFileRoute";
+import { MEDIA_FILE_PATH } from "../Routes/utility/GetFileRoute";
 import path from "path";
 import fs from 'fs'; 
 

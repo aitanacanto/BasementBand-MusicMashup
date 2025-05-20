@@ -6,5 +6,6 @@ export interface Song {
     key_scale: string,
     bpm: number,
     genre: string,
-    danceability: string
+    danceability: string,
+    first_beat: number
 }

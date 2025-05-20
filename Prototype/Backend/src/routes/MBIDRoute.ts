@@ -1,5 +1,5 @@
 import express, { Request, Response } from "express";
-import { getMBID } from "../getMBID";
+import { getMBID } from "../services/acousticBrainz/getMBID";
 
 export const MBIDRoute = express.Router();
 

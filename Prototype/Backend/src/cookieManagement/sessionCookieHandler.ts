@@ -4,7 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 import path from 'path';
 import fs from 'fs';
 const cookieParser = require('cookie-parser');
-import { MEDIA_FILE_PATH } from '../routes/utility/GetFileRoute';
+import { MEDIA_FILE_PATH } from '../Routes/utility/GetFileRoute';
 
 export const COOKIE_NAME: string = 'userSessionId';
 

@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { SimilarSongsResponse } from '../../types/SimilarSongsResponse';
 import { Song } from '../../types/song';
-import { parseLowLevelResponseToSongs } from "./LowLevelResponse";
+import { parseLowLevelResponseToSongs } from "./parseLowLevelResponse";
 
 export async function getSimilarSongs(MBID: string, requestURL: string): Promise<Array<string> | null> {
     try {
@@ -21,7 +21,7 @@ export async function getSimilarSongs(MBID: string, requestURL: string): Promise
         };
       });
       let mbids : Array<string> | null = data.ToList();
-      mbids.unshift(MBID);
+      mbids.unshift(MBID);  //add original song's MBID to the start of the list
       const metric : string = "bpm";
       const songs : Array<Song> | null = await sortByMetric(mbids, metric);
 
@@ -42,7 +42,6 @@ async function sortByMetric(mbids : Array<string>, metric : string) : Promise<Ar
       mbids.forEach((mbid: string) => {
         requestURL += mbid + ";";
       });
-      requestURL += "&features=metadata.tags;rhythm.bpm;tonal.key_key;tonal.key_scale;rhythm.danceability";
       const res = await axios.get(requestURL, {
         headers: {
           "Accept": "application/json",
