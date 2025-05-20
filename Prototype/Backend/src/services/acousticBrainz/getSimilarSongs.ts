@@ -3,7 +3,7 @@ import { SimilarSongsResponse } from '../../types/SimilarSongsResponse';
 import { Song } from '../../types/song';
 import { parseLowLevelResponseToSongs } from "./parseLowLevelResponse";
 
-export async function getSimilarSongs(MBID: string, requestURL: string): Promise<Array<string> | null> {
+export async function getSimilarSongs(MBID: string, requestURL: string): Promise<Array<Song> | null> {
     try {
       const res = await axios.get(requestURL, {
         headers: {
@@ -22,11 +22,13 @@ export async function getSimilarSongs(MBID: string, requestURL: string): Promise
       });
       let mbids : Array<string> | null = data.ToList();
       mbids.unshift(MBID);  //add original song's MBID to the start of the list
-      const metric : string = "bpm";
-      const songs : Array<Song> | null = await sortByMetric(mbids, metric);
+      const songs : Array<Song> | null = await getSongData(mbids);
+      if (songs === null) {
+        return null;
+      }
+      songs.sort((a, b) => b.bpm - a.bpm);
 
-
-      return mbids
+      return songs
       
     } catch (e) {
       if (e instanceof Error) {
@@ -36,7 +38,7 @@ export async function getSimilarSongs(MBID: string, requestURL: string): Promise
   }
 }
 
-async function sortByMetric(mbids : Array<string>, metric : string) : Promise<Array<Song> | null>{
+async function getSongData(mbids : Array<string>) : Promise<Array<Song> | null>{
     try {
       let requestURL : string = "https://acousticbrainz.org/api/v1/low-level?recording_ids=";
       mbids.forEach((mbid: string) => {
@@ -49,9 +51,7 @@ async function sortByMetric(mbids : Array<string>, metric : string) : Promise<Ar
         }
       })
       const songs: Song[] = parseLowLevelResponseToSongs(res.data);
-      console.log(songs);
       return songs;
-      //CONTINUE HERE
       
     } catch (e) {
       if (e instanceof Error) {
@@ -61,4 +61,4 @@ async function sortByMetric(mbids : Array<string>, metric : string) : Promise<Ar
     }
   };
 
-  //test url: https://acousticbrainz.org/api/v1/low-level?recording_ids=135bb9ed-9e90-42b8-8141-3225f63b9e59;1b5d1ee9-8589-4ab3-829c-cba496c75e3e;&features=metadata.tags;rhythm.bpm;tonal.key_key;tonal.key_scale"
+  

@@ -27,7 +27,3 @@ MBIDRoute.get('/MBID/:title', async (req: Request, res: Response) => {
     res.status(500).json({ error: "Failed to fetch MusicBrainz ID" });
   }
 });
-
-
-
-
