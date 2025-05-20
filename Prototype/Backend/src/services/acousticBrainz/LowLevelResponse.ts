@@ -1,4 +1,4 @@
-import { Song } from './types/song';
+import { Song } from "../../types/song";
 
 export function parseLowLevelResponseToSongs(data: any): Song[] {
     const songs: Song[] = [];

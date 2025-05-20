@@ -3,6 +3,8 @@ export class SimilarSongsResponse {
       [sourceMbid: string]: {
         ["0"]: Array<{
           recording_mbid: string;
+          distance: number; // still required in the type
+          offset: number;   // still required in the type
         }>;
       };
     };
@@ -11,6 +13,8 @@ export class SimilarSongsResponse {
       [sourceMbid: string]: {
         ["0"]: Array<{
           recording_mbid: string;
+          distance: number;
+          offset: number;
         }>;
       };
     }) {
@@ -18,8 +22,10 @@ export class SimilarSongsResponse {
     }
   
     ToList(): string[] {
-      const sourceMbid : string = Object.keys(this.data)[0];
-      const entries : Array<{ recording_mbid: string; }> = this.data[sourceMbid]?.["0"] ?? [];
-      return entries.map(item => item.recording_mbid);
+      const sourceMbid = Object.keys(this.data)[0];
+      const entries = this.data[sourceMbid]?.["0"];
+      if (!Array.isArray(entries)) return [];
+      return entries.map(item => item.recording_mbid); // ignore the rest
     }
   }
+  

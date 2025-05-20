@@ -41,3 +41,7 @@ If you are testing your backend code you can use the terminal to see the output 
 ## Development
 
 Make changes to the files as you develop the project. Refer to the github workflow guide by Aitana for how to commit your work to the repo.
+
+## Additional dependancies
+
+In order to use most of these functions you will need a number of command line tools installed on your machine. These will also need to be configured to the path of your machine. The dependancies are as follows: 1. Demucs 2. yt-dlp 3. FFMPEG
