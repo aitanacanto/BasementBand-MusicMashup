@@ -5,11 +5,7 @@ import { Button } from '@/components/ui/button';
 import WaveSurfer from 'wavesurfer.js';
 
 const AutoGenerate: React.FC = () => {
-  const [selectedSongs, setSelectedSongs] = useState([
-    { title: 'DtMF', url: 'songs/BadBunny-DtMF.mp3' },
-    { title: 'Good Fealing', url: 'songs/FloRida-GoodFeeling.mp3' },
-    { title: 'Bring Me To Life', url: 'songs/Creep-Radiohead.mp3' },
-  ]);
+const [selectedSongs, setSelectedSongs] = useState([]);
 
   const waveformRefs = [useRef(null), useRef(null), useRef(null)];
   const waves = useRef<WaveSurfer[]>([]);
@@ -67,16 +63,13 @@ const AutoGenerate: React.FC = () => {
     <div className="min-h-screen p-6 bg-gray-900 text-white space-y-6">
       <h2 className="text-3xl font-bold">🔁 Auto Generate Mashup</h2>
 
-      {/* Buscador de canciones por título/artista/YouTubeID */}
       <SongSearch onAdd={handleAddSong} />
 
-      {/* Lista de canciones seleccionadas */}
       <SelectedSongs songs={selectedSongs} onRemove={handleRemoveSong} />
 
-      {/* Visualización de Waveforms */}
       {selectedSongs.map((song, idx) => (
         <div key={idx} className="track bg-white text-black rounded p-4">
-          <h3 className="text-lg font-semibold mb-2">Audio Track {idx + 1}</h3>
+          <h3 className="text-lg font-semibold mb-2">🎧Audio Track {idx + 1} - {song.title}</h3>
           <div
             ref={waveformRefs[idx]}
             className="waveform w-full h-[100px] bg-gray-100 border border-gray-400"
@@ -90,8 +83,6 @@ const AutoGenerate: React.FC = () => {
           </button>
         </div>
       ))}
-
-      {/* Botón para generar el mashup */}
       <Button className="mt-4">Generate Mashup</Button>
     </div>
   );
