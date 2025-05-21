@@ -15,8 +15,10 @@ const ABSOLUTE_MEDIA_PATH = path.posix.join(process.cwd(), MEDIA_FILE_PATH);
  * The frontend needs to encode the filepath before sending them in the request uri
  */
 GetFileRoute.get('/GetFile/:filepath', async (req: Request, res: Response) => {
-    const filePath =  path.posix.join(decodeURI(req.params.filepath), ABSOLUTE_MEDIA_PATH);
+    const filePath =  path.posix.join(ABSOLUTE_MEDIA_PATH, decodeURI(req.params.filepath));
     //Posix (/ instead of \) is required to prevent issues with encoding/decoding the filepath
+
+    console.log(filePath);
     if(filePath && fs.existsSync(filePath)){  
         try{
             res.sendFile(filePath, (err) => {

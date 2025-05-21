@@ -1,6 +1,6 @@
 import express, { Request, Response } from 'express';
 import cors from 'cors';
-import { routes } from './Routes';
+import { routes } from './routes';
 import path from 'path';
 const cookieParser = require('cookie-parser');
 import { sessionCookieHandler } from './cookieManagement/sessionCookieHandler';
