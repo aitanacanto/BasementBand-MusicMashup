@@ -4,10 +4,10 @@ import { Song } from "../../types/song"
 
 export const SimilarityRouter = express.Router();
 
-SimilarityRouter.get('/SimilarSongs/:MBID', async (req: Request, res: Response) => {
+SimilarityRouter.get('/SimilarSongs/:metric/:MBID', async (req: Request, res: Response) => {
   let MBID : string = req.params.MBID;
   let NUM_RESULTS : number = 24;  //24 neighbours each time as low level batch request only takes 25 MBIDs, and we need to include the original.
-  let metric : string = "key"
+  let metric : string = req.params.metric;
   let SimilarSongs : Array<Song> | null;
   let requestURL = 
   `https://acousticbrainz.org/api/v1/similarity/${metric}?recording_ids=${MBID}&n_neighbours=${NUM_RESULTS}`
