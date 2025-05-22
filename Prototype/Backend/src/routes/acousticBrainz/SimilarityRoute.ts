@@ -10,7 +10,8 @@ SimilarityRouter.get('/SimilarSongs/:metric/:MBID', async (req: Request, res: Re
   let metric : string = req.params.metric;
   let SimilarSongs : Array<Song> | null;
   let requestURL = 
-  `https://acousticbrainz.org/api/v1/similarity/${metric}?recording_ids=${MBID}&n_neighbours=${NUM_RESULTS}`
+  `https://acousticbrainz.org/api/v1/similarity/${metric}/?recording_ids=${MBID}&n_neighbours=${NUM_RESULTS}`
+  console.log(requestURL);
 
 try {
   SimilarSongs = await getSimilarSongs(MBID, requestURL);

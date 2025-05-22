@@ -1,7 +1,8 @@
 import axios from 'axios';
 import { MusicBrainzRecording } from '../../types/MusicBrainzRecording';
 
-export async function getMBIDS(title: string, artist: string | null = null): Promise<Array<MusicBrainzRecording> | null> {
+  export async function getMBIDS(title: string, artist: string | null = null): Promise<Array<MusicBrainzRecording> | null> {
+    const recordings : Array<MusicBrainzRecording> = [];
     try {
       const baseURL = "https://musicbrainz.org/ws/2/recording/?query=";
       let requestURL : string = `recording:${title}`;
@@ -18,26 +19,47 @@ export async function getMBIDS(title: string, artist: string | null = null): Pro
       });
 
       const data = res.data as MusicBrainzRecordingResponse;
+      console.log(data);
   
-      const recordings : Array<MusicBrainzRecording> = [];
-        for (let i = 0; i < 5; i++) {
-          if (i >= data.count) {
+      for (let i = 0; i < data.count; i++) {
+        let recording_artist : string;
+        let recording_title : string;
+        let recording_release_id : string;
+        try {
+          recording_artist = data.recordings[i]['artist-credit'][0].artist.name;
+          recording_title = data.recordings[i].title
+          recording_release_id = data.recordings[i].releases[0].id
+        } catch (e) {
+          if (e instanceof Error) {
+            console.error(e.message);
+          }
+          continue;
+        }
+        
+        if (artist?.toLowerCase() === recording_artist.toLowerCase()) { 
+          if (i > 4) {
+            recordings.pop();
+            recordings.unshift({
+              title: recording_title,
+              artist: recording_artist,
+              MBID: recording_release_id
+            })
             break;
-          };
+          }
+        } else if (i <= 4) {
           recordings.push({
-            title: data.recordings[i].title,
-            artist: data.recordings[i]['artist-credit'][0].artist.name,
-            MBID: data.recordings[i].id
+            title: recording_title,
+            artist: recording_artist,
+            MBID: recording_release_id
           });
-        };
-      return recordings;
-      
+        }
+      };     
     } catch (e) {
       if (e instanceof Error) {
-        console.error("Failed to fetch MusicBrainz ID", e.message);
+        console.error(e.message);
       }
-      return null;
     }
+    return recordings;
   }
 
   interface MusicBrainzRecordingResponse {
@@ -47,6 +69,9 @@ export async function getMBIDS(title: string, artist: string | null = null): Pro
       title: string,
       "artist-credit": { 
         artist: { name: string }
+      }[]
+      releases: {
+        id: string
       }[]
      }[];
   }
