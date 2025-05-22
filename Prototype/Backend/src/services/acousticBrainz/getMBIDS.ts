@@ -8,7 +8,7 @@ import { MusicBrainzRecording } from '../../types/MusicBrainzRecording';
       let requestURL : string = `recording:${title}`;
 
       if (artist != null) {
-        requestURL.concat(` AND artist:${artist}`);
+        requestURL += ` AND artist:${artist}`;
       }
 
       const res = await axios.get(`${baseURL}${encodeURIComponent(requestURL)}&fmt=json`, {
@@ -19,24 +19,12 @@ import { MusicBrainzRecording } from '../../types/MusicBrainzRecording';
       });
 
       const data = res.data as MusicBrainzRecordingResponse;
-      console.log(data);
   
       for (let i = 0; i < data.count; i++) {
-        let recording_artist : string;
-        let recording_title : string;
-        let recording_release_id : string;
-        try {
-          recording_artist = data.recordings[i]['artist-credit'][0].artist.name;
-          recording_title = data.recordings[i].title
-          recording_release_id = data.recordings[i].releases[0].id
-        } catch (e) {
-          if (e instanceof Error) {
-            console.error(e.message);
-          }
-          continue;
-        }
-        
-        if (artist?.toLowerCase() === recording_artist.toLowerCase()) { 
+        const recording_artist : string = data.recordings[i]?.['artist-credit']?.[0]?.artist?.name;
+        const recording_title : string = data.recordings[i]?.title;
+        const recording_release_id : string = data.recordings[i]?.id;
+        if (artist?.toLowerCase() === recording_artist?.toLowerCase()) { 
           if (i > 4) {
             recordings.pop();
             recordings.unshift({
@@ -44,7 +32,9 @@ import { MusicBrainzRecording } from '../../types/MusicBrainzRecording';
               artist: recording_artist,
               MBID: recording_release_id
             })
-            break;
+            console.log("here");
+            console.log(data.recordings[i]['artist-credit'][0])
+            return recordings;
           }
         } else if (i <= 4) {
           recordings.push({
@@ -53,13 +43,16 @@ import { MusicBrainzRecording } from '../../types/MusicBrainzRecording';
             MBID: recording_release_id
           });
         }
-      };     
+        
+      };
+      return recordings;
+      
     } catch (e) {
       if (e instanceof Error) {
         console.error(e.message);
       }
+      return recordings;
     }
-    return recordings;
   }
 
   interface MusicBrainzRecordingResponse {
@@ -68,10 +61,12 @@ import { MusicBrainzRecording } from '../../types/MusicBrainzRecording';
       id: string,
       title: string,
       "artist-credit": { 
-        artist: { name: string }
+        artist: { 
+          id: string,
+          name: string,
+          "sort-name": string
+        }
       }[]
-      releases: {
-        id: string
-      }[]
+      releases: {}[]
      }[];
   }
