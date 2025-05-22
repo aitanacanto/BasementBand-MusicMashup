@@ -20,7 +20,8 @@ export function parseLowLevelResponseToSongs(data: any): Song[] {
         bpm: rhythm.bpm ?? 0,
         genre: tags.genre?.[0] ?? "Unknown",
         danceability: rhythm.danceability?.toString() ?? "Unknown",
-        first_beat: rhythm.beats_position?.[0]
+        first_beat: rhythm.beats_position?.[0],
+        filepath: null
       });
     }
   

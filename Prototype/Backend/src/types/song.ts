@@ -8,4 +8,5 @@ export interface Song {
     genre: string,
     danceability: number,
     first_beat: number
+    filepath: null
 }
