@@ -24,25 +24,13 @@ import { MusicBrainzRecording } from '../../types/MusicBrainzRecording';
         const recording_artist : string = data.recordings[i]?.['artist-credit']?.[0]?.artist?.name;
         const recording_title : string = data.recordings[i]?.title;
         const recording_release_id : string = data.recordings[i]?.id;
-        if (artist?.toLowerCase() === recording_artist?.toLowerCase()) { 
-          if (i > 4) {
-            recordings.pop();
-            recordings.unshift({
-              title: recording_title,
-              artist: recording_artist,
-              MBID: recording_release_id
-            })
-            console.log("here");
-            console.log(data.recordings[i]['artist-credit'][0])
-            return recordings;
-          }
-        } else if (i <= 4) {
-          recordings.push({
+          //if (i < 4) {
+            recordings.push({
             title: recording_title,
             artist: recording_artist,
             MBID: recording_release_id
           });
-        }
+        //}
         
       };
       return recordings;
