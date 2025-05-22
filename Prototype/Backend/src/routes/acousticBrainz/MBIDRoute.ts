@@ -13,18 +13,6 @@ MBIDRoute.get('/MBIDS/:title/:artist', async (req: Request, res: Response) => {
     recordings = await getMBIDS(title, artist);
     res.send(recordings);
   } catch (error) {
-    res.status(500).json({ error: "Failed to fetch MusicBrainz ID" });
-  }
-});
-
-MBIDRoute.get('/MBIDS/:title', async (req: Request, res: Response) => {
-  let title : string = req.params.title;
-  let recordings : Array<MusicBrainzRecording> | null;
-
-  try {
-    recordings = await getMBIDS(title);
-    res.send(recordings);
-  } catch (error) {
-    res.status(500).json({ error: "Failed to fetch MusicBrainz ID" });
+    res.status(500).json({ error: "Error 500: Failed to fetch MusicBrainz IDs" });
   }
 });

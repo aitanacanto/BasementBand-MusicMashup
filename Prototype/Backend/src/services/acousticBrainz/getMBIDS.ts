@@ -1,15 +1,11 @@
 import axios from 'axios';
 import { MusicBrainzRecording } from '../../types/MusicBrainzRecording';
 
-  export async function getMBIDS(title: string, artist: string | null = null): Promise<Array<MusicBrainzRecording> | null> {
+  export async function getMBIDS(title: string, artist: string): Promise<Array<MusicBrainzRecording> | null> {
     const recordings : Array<MusicBrainzRecording> = [];
     try {
       const baseURL = "https://musicbrainz.org/ws/2/recording/?query=";
-      let requestURL : string = `recording:${title}`;
-
-      if (artist != null) {
-        requestURL += ` AND artist:${artist}`;
-      }
+      let requestURL : string = `recording:${title} AND artist:${artist}`;
 
       const res = await axios.get(`${baseURL}${encodeURIComponent(requestURL)}&fmt=json`, {
         headers: {
@@ -24,23 +20,22 @@ import { MusicBrainzRecording } from '../../types/MusicBrainzRecording';
         const recording_artist : string = data.recordings[i]?.['artist-credit']?.[0]?.artist?.name;
         const recording_title : string = data.recordings[i]?.title;
         const recording_release_id : string = data.recordings[i]?.id;
-          //if (i < 4) {
+        //we only have enough requests to test 9 MBIDs because of the rate limiting
+          if (i < 9 && recording_title.toLowerCase() === title.toLowerCase() && recording_artist.toLowerCase() === artist?.toLowerCase()) {
             recordings.push({
-            title: recording_title,
-            artist: recording_artist,
-            MBID: recording_release_id
-          });
-        //}
+              title: recording_title,
+              artist: recording_artist,
+              MBID: recording_release_id
+            });
+          }
         
-      };
-      return recordings;
-      
+      };    
     } catch (e) {
       if (e instanceof Error) {
         console.error(e.message);
       }
-      return recordings;
     }
+    return recordings;
   }
 
   interface MusicBrainzRecordingResponse {
