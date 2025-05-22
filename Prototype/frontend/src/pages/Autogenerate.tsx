@@ -3,6 +3,7 @@ import SongSearch from '@/components/SongSearch';
 import SelectedSongs from '@/components/SelectedSongs';
 import { Button } from '@/components/ui/button';
 import WaveSurfer from 'wavesurfer.js';
+import axios from 'axios';
 
 const AutoGenerate: React.FC = () => {
 const [selectedSongs, setSelectedSongs] = useState([]);
@@ -26,24 +27,37 @@ const [selectedSongs, setSelectedSongs] = useState([]);
   useEffect(() => {
     waves.current.forEach((w) => w.destroy());
     waves.current = [];
-
-    selectedSongs.forEach((song, idx) => {
-      const wave = WaveSurfer.create({
-        container: waveformRefs[idx].current!,
-        waveColor: '#a2d2ff',
-        progressColor: '#0077b6',
-        height: 80,
-        responsive: true,
-      });
-
-      wave.load(song.url);
-      waves.current.push(wave);
-
-      wave.on('finish', () => {
-        if (playButtons.current[idx]) playButtons.current[idx]!.textContent = 'Play';
-      });
-    });
+    loadWaveForms();
   }, [selectedSongs]);
+
+  const loadWaveForms = async () => {
+    for (const [idx, song] of selectedSongs.entries()) {
+  	  const wave = WaveSurfer.create({
+          container: waveformRefs[idx].current!,
+          waveColor: '#a2d2ff',
+          progressColor: '#0077b6',
+          height: 80,
+          responsive: true,
+        });
+        try{
+          const response = await axios.get(song.url, {
+              responseType: 'blob', 
+              withCredentials: true, 
+          });
+
+          const audioBlob = response.data;
+          wave.loadBlob(audioBlob);
+        }catch(err){
+          console.log(err);
+        }
+        waves.current.push(wave);
+
+        wave.on('finish', () => {
+          if (playButtons.current[idx]) playButtons.current[idx]!.textContent = 'Play';
+        });
+    }
+  }
+
 
   const togglePlay = (index: number) => {
     const wave = waves.current[index];

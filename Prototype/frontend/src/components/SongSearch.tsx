@@ -25,8 +25,12 @@ const SongSearch: React.FC<Props> = ({ onAdd }) => {
 
       // Download song
       const downloadRes = await axios.get(
-        `http://localhost:5000/Download/${encodedTitle}/${encodedArtist}`
+        `http://localhost:5000/Download/${encodedTitle}/${encodedArtist}`,
+        {
+          withCredentials: true
+        }
       );
+      /**/
 
       const rawPath = downloadRes.data; //String Data
 
