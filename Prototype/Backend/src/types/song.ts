@@ -7,6 +7,7 @@ export interface Song {
     bpm: number,
     genre: string,
     danceability: number,
-    first_beat: number
-    filepath: null
+    first_beat: number,
+    filepath: null,
+    stems: Array<string>
 }
