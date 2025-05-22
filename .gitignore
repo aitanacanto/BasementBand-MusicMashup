@@ -20,3 +20,4 @@ build/
 # Temp files
 *.tmp
 Prototype/frontend/public/songs/
+Prototype/Backend/media
