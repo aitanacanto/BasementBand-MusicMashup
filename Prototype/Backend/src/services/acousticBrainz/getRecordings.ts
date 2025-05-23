@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { MusicBrainzRecording } from '../../types/MusicBrainzRecording';
 
-  export async function getMBIDS(title: string, artist: string): Promise<Array<MusicBrainzRecording> | null> {
+  export async function getRecordings(title: string, artist: string): Promise<Array<MusicBrainzRecording> | null> {
     const recordings : Array<MusicBrainzRecording> = [];
     try {
       const baseURL = "https://musicbrainz.org/ws/2/recording/?query=";
