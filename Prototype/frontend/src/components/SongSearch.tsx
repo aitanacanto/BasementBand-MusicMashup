@@ -16,25 +16,46 @@ const SongSearch: React.FC<Props> = ({ onAdd }) => {
     e.preventDefault();
     if (!title || !artist) return;
 
-    const encodedTitle = encodeURIComponent(title);
-    const encodedArtist = encodeURIComponent(artist);
+    //const encodedTitle = encodeURIComponent(title);
+    //const encodedArtist = encodeURIComponent(artist);
+    //No need to encode these for passing an object
 
     try {
       setLoading(true);
       setError('');
 
+      //Temporary to maintain functionality:
+      //Assign title and artist to song object and pass to download route
+      //In future the frontend should be sending this title and artist to acoustic brainz info first then sending
+      //The filled out song object to the download route
+      const songToPass: any = {
+        mbid: '1',
+        title: title, 
+        artist: artist, 
+        key: 'A', 
+        key_scale: 'A', 
+        bpm: 100, 
+        genre: 'Any', 
+        dancebility: 1, 
+        first_beat: 10, 
+        filepath: null, 
+        stems: null
+      }
+
       // Download song
-      const downloadRes = await axios.get(
-        `http://localhost:5000/Download/${encodedTitle}/${encodedArtist}`,
+      console.log(songToPass)
+      const downloadRes = await axios.post(
+        `http://localhost:5000/Download/`,
+        songToPass,
         {
           withCredentials: true
         }
       );
-      /**/
 
-      const rawPath = downloadRes.data; //String Data
+      const rawPath = downloadRes.data.filepath; //String Data
 
       // encodeURIComponent
+      console.log(rawPath)
       const encodedPath = encodeURIComponent(rawPath);
 
       // UrlSong

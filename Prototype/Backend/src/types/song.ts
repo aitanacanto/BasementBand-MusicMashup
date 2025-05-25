@@ -8,5 +8,6 @@ export interface Song {
     genre: string,
     danceability: number,
     first_beat: number
-    filepath: null
+    filepath: null | string
+    stems: Array<string> | null
 }

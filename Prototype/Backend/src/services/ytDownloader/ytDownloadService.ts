@@ -5,13 +5,13 @@ import { MEDIA_FILE_PATH } from '../../Routes/utility/GetFileRoute';
 export const downloadYoutubeAudio = async (songTitle: string, songArtist: string, folderPath: string): Promise<string | null> => {
     
     return new Promise<string>((resolve, reject) => {
+
         const queryString: string = songTitle.replace(/ /g, "+") + " " + songArtist.replace(/ /g, "+") + " Audio";
         //Puts query into the url format replacing spaces with +'s
         const command: string = "yt-dlp";
 
         //%(title) tells yt-dlp to name the file the song name.mp3
         //the output path is the relative path to the media folder
-        console.log(MEDIA_FILE_PATH)
         const outputPath = path.posix.join(MEDIA_FILE_PATH, folderPath, `%(title)s.%(ext)s`);
         const args: string[] = [
             "-x",

@@ -19,13 +19,6 @@ if (CLEAR_COOKIES) {
 }
 
 export const sessionCookieHandler = (req: Request, res: Response, next: NextFunction) => {
-// --- START DEBUG LOGGING ---
-    const requestStartTime = Date.now();
-    console.log(`\n--- [Session Handler] Request received at ${new Date(requestStartTime).toISOString()} ---`);
-    console.log(`[Session Handler] URL: ${req.method} ${req.originalUrl}`);
-    console.log(`[Session Handler] Raw Cookies:`, req.headers.cookie); // See what browser actually sent
-    console.log(`[Session Handler] Parsed Cookies:`, req.cookies);
-    // --- END DEBUG LOGGING ---
     if (!req.cookies) {
         console.error("Error: cookie-parser middleware is not used before sessionMiddleware.");
         return next(new Error("cookie-parser middleware required")); 
