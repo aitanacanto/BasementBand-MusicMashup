@@ -4,6 +4,7 @@ import { routes } from './Routes';
 import path from 'path';
 const cookieParser = require('cookie-parser');
 import { sessionCookieHandler } from './cookieManagement/sessionCookieHandler';
+import { StemRoute } from './routes/stemSeparation/stemRoute';
 
 const app = express();
 
@@ -30,6 +31,10 @@ app.use(cookieParser());
 app.use(sessionCookieHandler);
 
 app.use("/", routes);
+
+//
+app.use("/api/stem", StemRoute);
+
 
 app.get(/(.*)/, (req: Request, res: Response) => {
     res.status(404).send('<h1>404! Page not found</h1>');;
