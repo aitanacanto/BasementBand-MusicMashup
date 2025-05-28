@@ -10,7 +10,7 @@ export const COOKIE_NAME: string = 'userSessionId';
 
 const COOKIE_AGE: number = 20 * 60 * 1000; 
 const CLEAR_COOKIES_INTERVAL: number = 20 * 60 * 1000; 
-const CLEAR_COOKIES: boolean = true; 
+const CLEAR_COOKIES: boolean = false; 
 
 const sessions = new Map<string, number>();
 
@@ -19,7 +19,6 @@ if (CLEAR_COOKIES) {
 }
 
 export const sessionCookieHandler = (req: Request, res: Response, next: NextFunction) => {
-
     if (!req.cookies) {
         console.error("Error: cookie-parser middleware is not used before sessionMiddleware.");
         return next(new Error("cookie-parser middleware required")); 

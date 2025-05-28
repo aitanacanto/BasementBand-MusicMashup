@@ -22,7 +22,7 @@ export function parseLowLevelResponseToSongs(data: any): Song[] {
         danceability: rhythm.danceability?.toString() ?? "Unknown",
         first_beat: rhythm.beats_position?.[0],
         filepath: null,
-        stems: []
+        stems: null
       });
     }
   
