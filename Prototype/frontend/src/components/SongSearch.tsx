@@ -43,9 +43,8 @@ const SongSearch: React.FC<Props> = ({ onAdd }) => {
       }
 
       // Download song
-      console.log(songToPass)
       const downloadRes = await axios.post(
-        `http://localhost:5000/Download/`,
+        `http://localhost:50000/Download/`,
         songToPass,
         {
           withCredentials: true

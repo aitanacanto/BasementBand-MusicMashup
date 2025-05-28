@@ -46,6 +46,7 @@ const [selectedSongs, setSelectedSongs] = useState([]);
           });
 
           const audioBlob = response.data;
+          console.log("Blob: ", audioBlob)
           wave.loadBlob(audioBlob);
         }catch(err){
           console.log(err);
