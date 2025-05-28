@@ -10,15 +10,17 @@ type Props = {
 };
 
 const SelectedSongs: React.FC<Props> = ({ songs, onRemove, trackedSongs, setTrackedSongs }) => {
+  const [loadingIndexes, setLoadingIndexes] = useState<number[]>([]);
+  const [showModal, setShowModal] = useState(false);
+  const [currentSimilar, setCurrentSimilar] = useState<Song[]>([]);
 
-
-  const handleAddTrack = async (song: Song) => {
+  const handleAddTrack = async (song: Song, index: number) => {
     try {
+      setLoadingIndexes((prev) => [...prev, index]);
+
       const downloadRes = await axios.post(`http://localhost:50000/Download/`, song, {
         withCredentials: true,
-        headers: {
-          'Content-Type': 'application/json'
-        }
+        headers: { 'Content-Type': 'application/json' }
       });
 
       const encodedPath = encodeURIComponent(downloadRes.data.filepath);
@@ -29,16 +31,14 @@ const SelectedSongs: React.FC<Props> = ({ songs, onRemove, trackedSongs, setTrac
     } catch (error) {
       console.error("Error downloading track:", error);
       alert("Error downloading the track.");
+    } finally {
+      setLoadingIndexes((prev) => prev.filter((i) => i !== index));
     }
   };
-
 
   const showInfo = (song: Song) => {
     alert(`Title: ${song.title}\nArtist: ${song.artist}`);
   };
-
-  const [showModal, setShowModal] = useState(false);
-  const [currentSimilar, setCurrentSimilar] = useState<Song[]>([]);
 
   const showSimilarSongs = (index: number) => {
     const similar = songs[index].similarSongs;
@@ -78,12 +78,29 @@ const SelectedSongs: React.FC<Props> = ({ songs, onRemove, trackedSongs, setTrac
               >
                 Remove ✖
               </button>
+
               <button
-                onClick={() => handleAddTrack(entry.rootSong)}
-                className="flex-1 text-green-400 hover:text-green-600 text-base font-semibold py-2 bg-gray-800 rounded"
+                onClick={() => handleAddTrack(entry.rootSong, index)}
+                disabled={loadingIndexes.includes(index)}
+                className={`flex-1 text-base font-semibold py-2 rounded bg-gray-800 ${
+                  loadingIndexes.includes(index)
+                    ? 'text-gray-400 cursor-not-allowed'
+                    : 'text-green-400 hover:text-green-600'
+                }`}
               >
-                Add Track ➕
+                {loadingIndexes.includes(index) ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <svg className="animate-spin h-4 w-4 text-green-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                    </svg>
+                    Loading...
+                  </span>
+                ) : (
+                  'Add Track ➕'
+                )}
               </button>
+
               <button
                 onClick={() => showInfo(entry.rootSong)}
                 className="flex-1 text-blue-400 hover:text-blue-600 text-base font-semibold py-2 bg-gray-800 rounded"
@@ -111,7 +128,7 @@ const SelectedSongs: React.FC<Props> = ({ songs, onRemove, trackedSongs, setTrac
                   <p className="font-semibold">{s.title} — <span className="italic text-gray-600">{s.artist}</span></p>
                   <div className="flex gap-4 mt-1">
                     <button
-                      onClick={() => handleAddTrack(s)}
+                      onClick={() => handleAddTrack(s, i)}
                       className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 text-sm"
                     >
                       Add Track
