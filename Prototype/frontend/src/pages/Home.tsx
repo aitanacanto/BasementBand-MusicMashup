@@ -3,35 +3,54 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { motion } from 'framer-motion';
 
 const Home: React.FC = () => {
   return (
-    <div className="min-h-screen flex flex-col justify-center items-center bg-gradient-to-br from-gray-900 to-gray-700 text-white px-6">
-      <Card className="bg-gray-800 shadow-xl p-10 rounded-2xl max-w-xl w-full text-center">
-        <CardContent>
-          <h1 className="text-4xl font-bold mb-4">🎵 Welcome to Mashup Maker</h1>
-          <p className="text-lg mb-6">
-            Combine your favorite songs into a unique mashup. Choose from auto-generated combinations or mix manually!
-          </p>
-          <div className="flex flex-col gap-4">
-            <Link to="/autogenerate">
-              <Button className="w-full">Auto Generate Mashup</Button>
-            </Link>
-            <Link to="/editor">
-              <Button className="w-full" variant="outline">
-                Manual Mashup Editor
-              </Button>
-            </Link>
-          </div>
-        </CardContent>
-      </Card>
+    <div
+      className="min-h-screen flex flex-col justify-center items-center text-white px-6 bg-cover bg-center"
+      style={{ backgroundImage: "url('/wallpaperHome.png')" }}
+    >
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 1 }}
+      >
+        <Card className="bg-gray-900 bg-opacity-80 shadow-2xl p-12 rounded-3xl max-w-2xl w-full text-center border border-gray-700">
+          <CardContent>
+            <motion.h1
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 1, delay: 0.3 }}
+              className="text-5xl font-extrabold mb-6 bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 text-transparent bg-clip-text"
+            >
+              🎶 Welcome to MashGenX
+            </motion.h1>
+            <motion.p
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 1, delay: 0.5 }}
+              className="text-lg text-gray-300 mb-8"
+            >
+              Turn your favorite songs into a mashup masterpiece. Let's go !
+            </motion.p>
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 1, delay: 0.7 }}
+              className="flex justify-center"
+            >
+              <Link to="/autogenerate">
+                <Button className="px-8 py-3 text-lg font-semibold bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 transition-all duration-300 shadow-lg">
+                  Start Creating
+                </Button>
+              </Link>
+            </motion.div>
+          </CardContent>
+        </Card>
+      </motion.div>
     </div>
   );
 };
 
 export default Home;
-
-
-
-
-
