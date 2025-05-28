@@ -27,10 +27,6 @@ app.use(sessionCookieHandler);
 
 app.use("/", routes);
 
-//
-app.use("/api/stem", StemRoute);
-
-
 app.get(/(.*)/, (req: Request, res: Response) => {
     res.status(404).send('<h1>404! Page not found</h1>');;
 });
