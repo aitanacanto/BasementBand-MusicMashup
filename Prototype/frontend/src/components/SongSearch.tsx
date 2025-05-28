@@ -45,10 +45,13 @@ const SongSearch: React.FC<Props> = ({ onAdd }) => {
       // Download song
       console.log(songToPass)
       const downloadRes = await axios.post(
-        `http://localhost:5000/Download/`,
+        `http://localhost:50000/Download/`,
         songToPass,
         {
-          withCredentials: true
+          withCredentials: true,
+          headers: {
+            'Content-Type': 'application/json'
+          }
         }
       );
 
@@ -59,7 +62,7 @@ const SongSearch: React.FC<Props> = ({ onAdd }) => {
       const encodedPath = encodeURIComponent(rawPath);
 
       // UrlSong
-      const songUrl = `http://localhost:5000/GetFile/${encodedPath}`;
+      const songUrl = `http://localhost:50000/GetFile/${encodedPath}`;
 
       onAdd({
         title,
