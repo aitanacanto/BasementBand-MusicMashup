@@ -30,8 +30,8 @@ const SongSearch: React.FC<Props> = ({ onAdd }) => {
       //The filled out song object to the download route
       const songToPass: any = {
         mbid: '1',
-        title: title, 
-        artist: artist, 
+        title: encodeURIComponent(title), 
+        artist: encodeURIComponent(artist), 
         key: 'A', 
         key_scale: 'A', 
         bpm: 100, 
@@ -57,8 +57,10 @@ const SongSearch: React.FC<Props> = ({ onAdd }) => {
       const rawPath = downloadRes.data.filepath; //String Data
 
       // encodeURIComponent
-      console.log(rawPath)
+      console.log("RawPath:", rawPath)
       const encodedPath = encodeURIComponent(rawPath);
+      console.log("Encoded Path:", encodedPath)
+      
 
       // UrlSong
       const songUrl = `http://localhost:50000/GetFile/${encodedPath}`;
