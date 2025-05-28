@@ -11,7 +11,7 @@ export const DownloadRoute = express.Router();
  * songTitle: the title of the song
  * artist: the songs artist
 */
-DownloadRoute.post('/Download/', async (req: Request, res: Response) => {
+DownloadRoute.post('/', async (req: Request, res: Response) => {
     //Derive session id and user file path from the modified request object
     const sessionId = (req as any).sessionId as string;
 

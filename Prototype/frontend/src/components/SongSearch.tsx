@@ -47,7 +47,10 @@ const SongSearch: React.FC<Props> = ({ onAdd }) => {
         `http://localhost:50000/Download/`,
         songToPass,
         {
-          withCredentials: true
+          withCredentials: true,
+          headers: {
+            'Content-Type': 'application/json'
+          }
         }
       );
 
@@ -58,7 +61,7 @@ const SongSearch: React.FC<Props> = ({ onAdd }) => {
       const encodedPath = encodeURIComponent(rawPath);
 
       // UrlSong
-      const songUrl = `http://localhost:5000/GetFile/${encodedPath}`;
+      const songUrl = `http://localhost:50000/GetFile/${encodedPath}`;
 
       onAdd({
         title,
