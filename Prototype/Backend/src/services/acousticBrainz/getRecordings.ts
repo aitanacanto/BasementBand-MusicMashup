@@ -21,7 +21,7 @@ import { MusicBrainzRecording } from '../../types/MusicBrainzRecording';
         const recording_title : string = data.recordings[i]?.title;
         const recording_release_id : string = data.recordings[i]?.id;
         //we only have enough requests to test 9 MBIDs because of the rate limiting
-          if (i < 9 && recording_title.toLowerCase() === title.toLowerCase() && recording_artist.toLowerCase() === artist?.toLowerCase()) {
+          if (i < 10 && recording_title.toLowerCase() === title.toLowerCase() && recording_artist.toLowerCase() === artist?.toLowerCase()) {
             recordings.push({
               title: recording_title,
               artist: recording_artist,

@@ -26,6 +26,7 @@ SimilarityRouter.get('/SimilarSongs/:metric/:title/:artist', async (req: Request
 
   let SimilarSongs : Array<Song> | null;
 
+  //test each MBID till we find one that returns a valid similar songs result
   for (const recording of recordings) {
     const MBID : string = recording.MBID;
     let requestURL = 
