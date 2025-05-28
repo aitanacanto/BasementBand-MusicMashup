@@ -3,7 +3,7 @@ import axios from 'axios';
 import { Song } from '@/components/types/song';
 
 type Props = {
-  onAdd: (song: { title: string; artist: string; url: string }) => void;
+  onAdd: (rootSong: Song, similarSongs: Song[] | null) => void;
 };
 
 const SongSearch: React.FC<Props> = ({ onAdd }) => {
@@ -15,78 +15,53 @@ const SongSearch: React.FC<Props> = ({ onAdd }) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title || !artist) return;
-      try {
-        setLoading(true);
-        setError('');
 
-        const encodedTitle = encodeURIComponent(title);
-        const encodedArtist = encodeURIComponent(artist);
+    try {
+      setLoading(true);
+      setError('');
 
-        let songToPass: Song;
+      const encodedTitle = encodeURIComponent(title);
+      const encodedArtist = encodeURIComponent(artist);
 
-        try {
-          const response = await axios.get(`http://localhost:50000/SimilarSongs/key/${encodedTitle}/${encodedArtist}`, {
-            withCredentials: true
-          });
+      const response = await axios.get(
+        `http://localhost:50000/SimilarSongs/key/${encodedTitle}/${encodedArtist}`,
+        { withCredentials: true }
+      );
 
-          const similarSongs: Song[] = response.data;
-          songToPass = (similarSongs && similarSongs.length > 0)
-            ? similarSongs[0]
-            : {
-                mbid: '1',
-                title: encodedTitle,
-                artist: encodedArtist,
-                key: 'A',
-                key_scale: 'A',
-                bpm: 100,
-                genre: 'Any',
-                danceability: 1,
-                first_beat: 10,
-                filepath: null,
-                stems: null
-              };
-        } catch (fetchErr) {
-          if (axios.isAxiosError(fetchErr) && fetchErr.response?.status === 404) {
-            songToPass = {
-              mbid: '1',
-              title: encodedTitle,
-              artist: encodedArtist,
-              key: 'A',
-              key_scale: 'A',
-              bpm: 100,
-              genre: 'Any',
-              danceability: 1,
-              first_beat: 10,
-              filepath: null,
-              stems: null
-            };
-          } else {
-            throw fetchErr;
-          }
-        }
+      const similarSongs: Song[] = response.data;
 
-        const downloadRes = await axios.post(`http://localhost:50000/Download/`, songToPass, {
-          withCredentials: true,
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        });
-
-        const encodedPath = encodeURIComponent(downloadRes.data.filepath);
-        const songUrl = `http://localhost:50000/GetFile/${encodedPath}`;
-        console.log(songUrl);
-
-        onAdd({ title, artist, url: songUrl });
-        setTitle('');
-        setArtist('');
-
-      } catch (err) {
-        console.error(err);
-        setError('Error retrieving or downloading the song.');
-      } finally {
-        setLoading(false);
+      if (Array.isArray(similarSongs) && similarSongs.length > 0) {
+        const rootSong = similarSongs[0];
+        const rest = similarSongs.slice(1);
+        onAdd(rootSong, rest);
+      } else {
+        throw new Error('Empty array');
       }
 
+      setTitle('');
+      setArtist('');
+    } catch (err) {
+      console.error(err);
+
+      const fallbackRoot: Song = {
+        mbid: '',
+        title: title,
+        artist: artist,
+        key: '',
+        key_scale: '',
+        bpm: 0,
+        genre: '',
+        danceability: 0,
+        first_beat: 0,
+        filepath: null,
+        stems: null
+      };
+
+      onAdd(fallbackRoot, null);
+      setError('No similar songs found.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -108,7 +83,7 @@ const SongSearch: React.FC<Props> = ({ onAdd }) => {
         className="bg-blue-500 text-white px-4 py-2 rounded"
         disabled={loading}
       >
-        {loading ? 'Downloading...' : 'Add Song'}
+        {loading ? 'Searching...' : 'Add Song'}
       </button>
       {error && <p className="text-red-600 text-sm">{error}</p>}
     </form>

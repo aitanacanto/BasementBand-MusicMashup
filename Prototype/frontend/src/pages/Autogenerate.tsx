@@ -5,17 +5,19 @@ import { Button } from '@/components/ui/button';
 import WaveSurfer from 'wavesurfer.js';
 import axios from 'axios';
 import { motion } from 'framer-motion';
+import { Song } from '@/components/types/song'; 
 
 const AutoGenerate: React.FC = () => {
-  const [selectedSongs, setSelectedSongs] = useState([]);
+  const [selectedSongs, setSelectedSongs] = useState<{ rootSong: Song; similarSongs: Song[] | null }[]>([]);
+  const [trackedSongs, setTrackedSongs] = useState<Song[]>([]);
 
   const waveformRefs = [useRef(null), useRef(null), useRef(null)];
   const waves = useRef<WaveSurfer[]>([]);
   const playButtons = useRef<(HTMLButtonElement | null)[]>([]);
 
-  const handleAddSong = (song: any) => {
-    if (selectedSongs.length < 3) {
-      setSelectedSongs([...selectedSongs, song]);
+  const handleAddSong = (rootSong: Song, similarSongs: Song[] | null) => {
+    if (selectedSongs.length < 5) {
+      setSelectedSongs([...selectedSongs, { rootSong, similarSongs }]);
     }
   };
 
@@ -25,14 +27,24 @@ const AutoGenerate: React.FC = () => {
     setSelectedSongs(updated);
   };
 
+  const handleRemoveTrackedSong = (index: number) => {
+  const updated = [...trackedSongs];
+  updated.splice(index, 1);
+  setTrackedSongs(updated);
+
+  waves.current[index]?.destroy();
+  waves.current.splice(index, 1);
+};
+
+
   useEffect(() => {
     waves.current.forEach((w) => w.destroy());
     waves.current = [];
     loadWaveForms();
-  }, [selectedSongs]);
+  }, [trackedSongs]);
 
   const loadWaveForms = async () => {
-    for (const [idx, song] of selectedSongs.entries()) {
+    for (const [idx, song] of trackedSongs.entries()) {
       const wave = WaveSurfer.create({
         container: waveformRefs[idx].current!,
         waveColor: '#a2d2ff',
@@ -41,13 +53,12 @@ const AutoGenerate: React.FC = () => {
         responsive: true,
       });
       try {
-        const response = await axios.get(song.url, {
+        const response = await axios.get(song.filepath!, { 
           responseType: 'blob',
           withCredentials: true,
         });
 
         const audioBlob = response.data;
-        console.log("Blob: ", audioBlob)
         wave.loadBlob(audioBlob);
       } catch (err) {
         console.log(err);
@@ -92,9 +103,9 @@ const AutoGenerate: React.FC = () => {
 
       <SongSearch onAdd={handleAddSong} />
 
-      <SelectedSongs songs={selectedSongs} onRemove={handleRemoveSong} />
+      <SelectedSongs songs={selectedSongs} onRemove={handleRemoveSong} trackedSongs={trackedSongs} setTrackedSongs={setTrackedSongs} />
 
-      {selectedSongs.map((song, idx) => (
+      {trackedSongs.map((song, idx) => (
         <motion.div
           key={idx}
           initial={{ opacity: 0, y: 20 }}
@@ -107,15 +118,25 @@ const AutoGenerate: React.FC = () => {
             ref={waveformRefs[idx]}
             className="waveform w-full h-[100px] bg-gray-100 border border-gray-400"
           />
-          <motion.button
-            whileTap={{ scale: 0.95 }}
-            whileHover={{ scale: 1.05 }}
-            ref={(el) => (playButtons.current[idx] = el)}
-            className="bg-blue-600 text-white px-4 py-2 rounded mt-2 transition-all duration-300 hover:bg-blue-700"
-            onClick={() => togglePlay(idx)}
-          >
-            Play
-          </motion.button>
+          <div className="flex gap-2 mt-2">
+            <motion.button
+              whileTap={{ scale: 0.95 }}
+              whileHover={{ scale: 1.05 }}
+              ref={(el) => (playButtons.current[idx] = el)}
+              className="px-4 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm"
+              onClick={() => togglePlay(idx)}
+            >
+              Play
+            </motion.button>
+            <motion.button
+              whileTap={{ scale: 0.95 }}
+              whileHover={{ scale: 1.05 }}
+              className="px-4 py-1 bg-red-600 text-white rounded hover:bg-red-700 text-sm"
+              onClick={() => handleRemoveTrackedSong(idx)}
+            >
+              Remove ✖
+            </motion.button>
+          </div>
         </motion.div>
       ))}
 
