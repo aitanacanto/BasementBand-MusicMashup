@@ -10,8 +10,8 @@ import { Song } from '@/components/types/song';
 const AutoGenerate: React.FC = () => {
   const [selectedSongs, setSelectedSongs] = useState<{ rootSong: Song; similarSongs: Song[] | null }[]>([]);
   const [trackedSongs, setTrackedSongs] = useState<Song[]>([]);
+  const [waveformRefs, setWaveformRefs] = useState<React.RefObject<HTMLDivElement>[]>([]);
 
-  const waveformRefs = [useRef(null), useRef(null), useRef(null)];
   const waves = useRef<WaveSurfer[]>([]);
   const playButtons = useRef<(HTMLButtonElement | null)[]>([]);
 
@@ -28,25 +28,35 @@ const AutoGenerate: React.FC = () => {
   };
 
   const handleRemoveTrackedSong = (index: number) => {
-  const updated = [...trackedSongs];
-  updated.splice(index, 1);
-  setTrackedSongs(updated);
+    const updated = [...trackedSongs];
+    updated.splice(index, 1);
+    setTrackedSongs(updated);
 
-  waves.current[index]?.destroy();
-  waves.current.splice(index, 1);
-};
+    waves.current[index]?.destroy();
+    waves.current.splice(index, 1);
+  };
 
+  useEffect(() => {
+    setWaveformRefs((prevRefs) =>
+      Array(trackedSongs.length)
+        .fill(null)
+        .map((_, i) => prevRefs[i] || React.createRef())
+    );
+  }, [trackedSongs.length]);
 
   useEffect(() => {
     waves.current.forEach((w) => w.destroy());
     waves.current = [];
     loadWaveForms();
-  }, [trackedSongs]);
+  }, [waveformRefs]);
 
   const loadWaveForms = async () => {
     for (const [idx, song] of trackedSongs.entries()) {
+      const containerRef = waveformRefs[idx];
+      if (!containerRef?.current) continue;
+
       const wave = WaveSurfer.create({
-        container: waveformRefs[idx].current!,
+        container: containerRef.current,
         waveColor: '#a2d2ff',
         progressColor: '#0077b6',
         height: 80,
