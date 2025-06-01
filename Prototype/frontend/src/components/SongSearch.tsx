@@ -1,9 +1,9 @@
-// src/components/SongSearch.tsx
 import React, { useState } from 'react';
 import axios from 'axios';
+import { Song } from '@/components/types/song';
 
 type Props = {
-  onAdd: (song: { title: string; artist: string; url: string }) => void;
+  onAdd: (rootSong: Song, similarSongs: Song[] | null) => void;
 };
 
 const SongSearch: React.FC<Props> = ({ onAdd }) => {
@@ -16,65 +16,49 @@ const SongSearch: React.FC<Props> = ({ onAdd }) => {
     e.preventDefault();
     if (!title || !artist) return;
 
-    //const encodedTitle = encodeURIComponent(title);
-    //const encodedArtist = encodeURIComponent(artist);
-    //No need to encode these for passing an object
-
     try {
       setLoading(true);
       setError('');
 
-      //Temporary to maintain functionality:
-      //Assign title and artist to song object and pass to download route
-      //In future the frontend should be sending this title and artist to acoustic brainz info first then sending
-      //The filled out song object to the download route
-      const songToPass: any = {
-        mbid: '1',
-        title: title, 
-        artist: artist, 
-        key: 'A', 
-        key_scale: 'A', 
-        bpm: 100, 
-        genre: 'Any', 
-        dancebility: 1, 
-        first_beat: 10, 
-        filepath: null, 
-        stems: null
-      }
+      const encodedTitle = encodeURIComponent(title);
+      const encodedArtist = encodeURIComponent(artist);
 
-      // Download song
-      console.log(songToPass)
-      const downloadRes = await axios.post(
-        `http://localhost:50000/Download/`,
-        songToPass,
-        {
-          withCredentials: true,
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        }
+      const response = await axios.get(
+        `http://localhost:50000/SimilarSongs/key/${encodedTitle}/${encodedArtist}`,
+        { withCredentials: true }
       );
 
-      const rawPath = downloadRes.data.filepath; //String Data
+      const similarSongs: Song[] = response.data;
 
-      // encodeURIComponent
-      console.log(rawPath)
-      const encodedPath = encodeURIComponent(rawPath);
-
-      // UrlSong
-      const songUrl = `http://localhost:50000/GetFile/${encodedPath}`;
-
-      onAdd({
-        title,
-        artist,
-        url: songUrl,
-      });
+      if (Array.isArray(similarSongs) && similarSongs.length > 0) {
+        const rootSong = similarSongs[0];
+        const rest = similarSongs.slice(1);
+        onAdd(rootSong, rest);
+      } else {
+        throw new Error('Empty array');
+      }
 
       setTitle('');
       setArtist('');
     } catch (err) {
       console.error(err);
-      setError('Error downloading or retrieving the song.');
+
+      const fallbackRoot: Song = {
+        mbid: '',
+        title: title,
+        artist: artist,
+        key: '',
+        key_scale: '',
+        bpm: 0,
+        genre: '',
+        danceability: 0,
+        first_beat: 0,
+        filepath: null,
+        stems: null
+      };
+
+      onAdd(fallbackRoot, null);
+      setError('No similar songs found.');
     } finally {
       setLoading(false);
     }
@@ -96,10 +80,36 @@ const SongSearch: React.FC<Props> = ({ onAdd }) => {
       />
       <button
         type="submit"
-        className="bg-blue-500 text-white px-4 py-2 rounded"
+        className="bg-blue-500 text-white px-4 py-2 rounded flex items-center justify-center gap-2"
         disabled={loading}
       >
-        {loading ? 'Downloading...' : 'Add Song'}
+        {loading ? (
+          <>
+            <svg
+              className="animate-spin h-5 w-5 text-white"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                className="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="4"
+              ></circle>
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+              ></path>
+            </svg>
+            Searching...
+          </>
+        ) : (
+          'Add Song'
+        )}
       </button>
       {error && <p className="text-red-600 text-sm">{error}</p>}
     </form>
