@@ -108,7 +108,7 @@ const AutoGenerate: React.FC = () => {
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 1 }}
       >
-        🔁 Auto Generate Mashup
+        Choose your songs 🎶
       </motion.h2>
 
       <SongSearch onAdd={handleAddSong} />
@@ -157,7 +157,7 @@ const AutoGenerate: React.FC = () => {
         transition={{ duration: 0.8 }}
       >
         <Button className="mt-8 px-6 py-3 text-lg bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 shadow-xl">
-          🚀 Generate Mashup
+          🚀 Create Mashup
         </Button>
       </motion.div>
     </motion.div>
