@@ -2,7 +2,7 @@ import express, { Request, Response } from "express";
 import path from "path";
 import { downloadYoutubeAudio } from "../../services/ytDownloader/ytDownloadService";
 import { Song } from "../../types/song";
-import { AlteredSong } from "../../types/AlteredStem";
+import { AlteredSong } from "../../types/AlteredSong";
 import { combineStems } from "../../services/audioManipulation/combineStems";
 
 export const CombineStemsRoute = express.Router();
