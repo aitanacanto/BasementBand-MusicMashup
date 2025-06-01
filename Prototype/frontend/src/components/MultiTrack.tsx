@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { Song } from '@/components/types/song';
+import axios from 'axios';
 
 interface MultiTrackProps {
   songs: Song[];
@@ -22,10 +23,10 @@ const MultiTrack: React.FC<MultiTrackProps> = ({ songs }) => {
         multiTrackRef.current.destroy();
         multiTrackRef.current = null;
       }
-
+      
       const tracks = songs.map((song, index) => ({
         id: index,
-        url: song.filepath!,
+        url: `http://localhost:50000/GetFile/${encodeURIComponent(song.filepath)}`,
         volume: 0.9,
         draggable: true,
         options: {

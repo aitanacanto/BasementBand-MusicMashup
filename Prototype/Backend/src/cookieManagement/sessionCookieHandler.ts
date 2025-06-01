@@ -8,8 +8,8 @@ import { MEDIA_FILE_PATH } from '../Routes/utility/GetFileRoute';
 
 export const COOKIE_NAME: string = 'userSessionId';
 
-const COOKIE_AGE: number = 20 * 60 * 1000; 
-const CLEAR_COOKIES_INTERVAL: number = 20 * 60 * 1000; 
+const COOKIE_AGE: number = 120 * 60 * 1000; 
+const CLEAR_COOKIES_INTERVAL: number = 30 * 60 * 1000; 
 const CLEAR_COOKIES: boolean = false; 
 
 const sessions = new Map<string, number>();

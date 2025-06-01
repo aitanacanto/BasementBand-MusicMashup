@@ -7,12 +7,14 @@ import axios from 'axios';
 import { motion } from 'framer-motion';
 import { Song } from '@/components/types/song';
 import MultiTrack from '@/components/MultiTrack';
+import { CutRange } from '@/components/types/CutRange';
 
 const AutoGenerate: React.FC = () => {
   const [selectedSongs, setSelectedSongs] = useState<{ rootSong: Song; similarSongs: Song[] | null }[]>([]);
   const [trackedSongs, setTrackedSongs] = useState<Song[]>([]);
   const [multiTrackedSongs, setMultiTrackedSongs] = useState<Song[]>([]);
   const [waveformRefs, setWaveformRefs] = useState<React.RefObject<HTMLDivElement>[]>([]);
+  const [cutTimeStamp, setCutTimeStamp] = useState<CutRange>({timestamp1: null, timestamp2: null});
   const waves = useRef<WaveSurfer[]>([]);
   const playButtons = useRef<(HTMLButtonElement | null)[]>([]);
 
@@ -43,6 +45,26 @@ const AutoGenerate: React.FC = () => {
     }
   };
 
+  const handleCut = async (song: Song, index: number) => {
+    const wave = waves.current[index];
+    if(!wave) return ;
+    let timestamp = wave.getCurrentTime();
+    console.log(timestamp);
+    console.log(cutTimeStamp);
+    if(cutTimeStamp.timestamp1){
+      cutTimeStamp.timestamp2 = timestamp;
+    }
+    if(cutTimeStamp.timestamp1 && cutTimeStamp.timestamp2 && cutTimeStamp.timestamp1 < cutTimeStamp.timestamp2){
+      const cutRes = await axios.post(`http://localhost:50000/Cut/${cutTimeStamp.timestamp1}/${cutTimeStamp.timestamp2}`, song, {
+        withCredentials: true,
+        headers: { 'Content-Type': 'application/json' }
+      });
+      const cutSong: Song = cutRes.data;
+      handleAddToMultiTrack(cutSong);
+    }
+    cutTimeStamp.timestamp1 = timestamp;
+  }
+
   useEffect(() => {
     setWaveformRefs((prevRefs) =>
       Array(trackedSongs.length)
@@ -70,13 +92,15 @@ const AutoGenerate: React.FC = () => {
         responsive: true,
       });
       try {
-        const response = await axios.get(song.filepath!, {
-          responseType: 'blob',
-          withCredentials: true,
-        });
-
-        const audioBlob = response.data;
-        wave.loadBlob(audioBlob);
+        if(song.filepath){
+          const response = await axios.get(`http://localhost:50000/GetFile/${encodeURIComponent(song.filepath)}`, {
+            responseType: 'blob',
+            withCredentials: true,
+          });
+          const audioBlob = response.data;
+          wave.loadBlob(audioBlob);
+        }
+        
       } catch (err) {
         console.log(err);
       }
@@ -166,6 +190,14 @@ const AutoGenerate: React.FC = () => {
               onClick={() => handleAddToMultiTrack(song)}
             >
               MultiTrack ➕
+            </motion.button>
+            <motion.button
+              whileTap={{ scale: 0.95 }}
+              whileHover={{ scale: 1.05 }}
+              className="px-4 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600 text-sm"
+              onClick={() => handleCut(song, idx)}
+            >
+              Cut ✂️{cutTimeStamp?.timestamp1} : {cutTimeStamp?.timestamp2}
             </motion.button>
           </div>
         </motion.div>
