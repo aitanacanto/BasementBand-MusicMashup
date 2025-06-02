@@ -1,6 +1,5 @@
 import React, { useEffect, useRef } from 'react';
 import { Song } from '@/components/types/song';
-import axios from 'axios';
 
 interface MultiTrackProps {
   songs: Song[];
@@ -14,21 +13,24 @@ const MultiTrack: React.FC<MultiTrackProps> = ({ songs }) => {
     const container = containerRef.current;
     if (!container || songs.length === 0) return;
 
-    // Clear container to avoid duplicates
     container.innerHTML = '';
+    if (multiTrackRef.current) {
+      multiTrackRef.current.destroy();
+      multiTrackRef.current = null;
+    }
 
     import('wavesurfer-multitrack').then(({ default: Multitrack }) => {
-      // Destroy previous instance
-      if (multiTrackRef.current) {
-        multiTrackRef.current.destroy();
-        multiTrackRef.current = null;
-      }
-      
       const tracks = songs.map((song, index) => ({
         id: index,
-        url: `http://localhost:50000/GetFile/${encodeURIComponent(song.filepath)}`,
-        volume: 0.9,
+        url: typeof song.filepath === 'string'
+          ? `http://localhost:50000/GetFile/${encodeURIComponent(song.filepath)}`
+          : '',
         draggable: true,
+        startPosition: 0,
+        fadeInEnd: 5,
+        fadeOutStart: 25,
+        envelope: true,
+        volume: 0.9,
         options: {
           waveColor: 'hsl(200, 80%, 50%)',
           progressColor: 'hsl(200, 80%, 30%)',
@@ -42,9 +44,49 @@ const MultiTrack: React.FC<MultiTrackProps> = ({ songs }) => {
         cursorColor: '#D72F21',
         trackBackground: '#1a1a1a',
         trackBorderColor: '#444',
+        envelopeOptions: {
+          lineColor: 'rgba(0, 255, 255, 0.6)',
+          lineWidth: 3,
+          dragPointSize: 30,
+          dragPointFill: '#fff',
+          dragPointStroke: '#aaa',
+        },
       });
 
       multiTrackRef.current = mt;
+
+      // Events
+      mt.on('start-position-change', ({ id, startPosition }) => {
+        console.log(`Track ${id} start position updated to ${startPosition}`);
+      });
+
+      mt.on('start-cue-change', ({ id, startCue }) => {
+        console.log(`Track ${id} start cue updated to ${startCue}`);
+      });
+
+      mt.on('end-cue-change', ({ id, endCue }) => {
+        console.log(`Track ${id} end cue updated to ${endCue}`);
+      });
+
+      mt.on('volume-change', ({ id, volume }) => {
+        console.log(`Track ${id} volume updated to ${volume}`);
+      });
+
+      mt.on('fade-in-change', ({ id, fadeInEnd }) => {
+        console.log(`Track ${id} fade-in updated to ${fadeInEnd}`);
+      });
+
+      mt.on('fade-out-change', ({ id, fadeOutStart }) => {
+        console.log(`Track ${id} fade-out updated to ${fadeOutStart}`);
+      });
+
+      mt.on('intro-end-change', ({ id, endTime }) => {
+        console.log(`Track ${id} intro end updated to ${endTime}`);
+      });
+
+      mt.on('envelope-points-change', ({ id, points }) => {
+        console.log(`Track ${id} envelope points updated to`, points);
+      });
     });
 
     return () => {
@@ -72,7 +114,7 @@ const MultiTrack: React.FC<MultiTrackProps> = ({ songs }) => {
 
   return (
     <div className="bg-white text-black p-6 rounded-lg shadow-md">
-      <h3 className="text-xl font-bold mb-4"> MultiTrack Mixer</h3>
+      <h3 className="text-xl font-bold mb-4">🎚 MultiTrack Mixer</h3>
       <div id="container" ref={containerRef} />
       <div className="mt-4 flex flex-wrap gap-4">
         <button
