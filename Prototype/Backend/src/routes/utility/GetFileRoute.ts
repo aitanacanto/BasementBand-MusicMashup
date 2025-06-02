@@ -17,8 +17,6 @@ const ABSOLUTE_MEDIA_PATH = path.posix.join(process.cwd(), MEDIA_FILE_PATH);
 GetFileRoute.get('/GetFile/:filepath', async (req: Request, res: Response) => {
     const filePath =  path.posix.join(ABSOLUTE_MEDIA_PATH, decodeURI(req.params.filepath));
     //Posix (/ instead of \) is required to prevent issues with encoding/decoding the filepath
-
-    console.log(filePath);
     if(filePath && fs.existsSync(filePath)){  
         try{
             res.sendFile(filePath, (err) => {

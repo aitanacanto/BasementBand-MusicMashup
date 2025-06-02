@@ -17,6 +17,7 @@ DownloadRoute.post('/', async (req: Request, res: Response) => {
 
     const song = req.body as Song;
     //Access the user filepath if they have a valid session
+    console.log(song)
     try{
         
         if(sessionId){

@@ -5,13 +5,16 @@ import { Button } from '@/components/ui/button';
 import WaveSurfer from 'wavesurfer.js';
 import axios from 'axios';
 import { motion } from 'framer-motion';
-import { Song } from '@/components/types/song'; 
+import { Song } from '@/components/types/song';
+import MultiTrack from '@/components/MultiTrack';
+import { CutRange } from '@/components/types/CutRange';
 
 const AutoGenerate: React.FC = () => {
   const [selectedSongs, setSelectedSongs] = useState<{ rootSong: Song; similarSongs: Song[] | null }[]>([]);
   const [trackedSongs, setTrackedSongs] = useState<Song[]>([]);
+  const [multiTrackedSongs, setMultiTrackedSongs] = useState<Song[]>([]);
   const [waveformRefs, setWaveformRefs] = useState<React.RefObject<HTMLDivElement>[]>([]);
-
+  const [cutTimeStamp, setCutTimeStamp] = useState<CutRange>({timestamp1: null, timestamp2: null});
   const waves = useRef<WaveSurfer[]>([]);
   const playButtons = useRef<(HTMLButtonElement | null)[]>([]);
 
@@ -31,10 +34,36 @@ const AutoGenerate: React.FC = () => {
     const updated = [...trackedSongs];
     updated.splice(index, 1);
     setTrackedSongs(updated);
-
     waves.current[index]?.destroy();
     waves.current.splice(index, 1);
   };
+
+  const handleAddToMultiTrack = (song: Song) => {
+    const alreadyInList = multiTrackedSongs.some((s) => s.filepath === song.filepath);
+    if (!alreadyInList) {
+      setMultiTrackedSongs((prev) => [...prev, song]);
+    }
+  };
+
+  const handleCut = async (song: Song, index: number) => {
+    const wave = waves.current[index];
+    if(!wave) return ;
+    let timestamp = wave.getCurrentTime();
+    console.log(timestamp);
+    console.log(cutTimeStamp);
+    if(cutTimeStamp.timestamp1){
+      cutTimeStamp.timestamp2 = timestamp;
+    }
+    if(cutTimeStamp.timestamp1 && cutTimeStamp.timestamp2 && cutTimeStamp.timestamp1 < cutTimeStamp.timestamp2){
+      const cutRes = await axios.post(`http://localhost:50000/Cut/${cutTimeStamp.timestamp1}/${cutTimeStamp.timestamp2}`, song, {
+        withCredentials: true,
+        headers: { 'Content-Type': 'application/json' }
+      });
+      const cutSong: Song = cutRes.data;
+      handleAddToMultiTrack(cutSong);
+    }
+    cutTimeStamp.timestamp1 = timestamp;
+  }
 
   useEffect(() => {
     setWaveformRefs((prevRefs) =>
@@ -63,13 +92,15 @@ const AutoGenerate: React.FC = () => {
         responsive: true,
       });
       try {
-        const response = await axios.get(song.filepath!, { 
-          responseType: 'blob',
-          withCredentials: true,
-        });
-
-        const audioBlob = response.data;
-        wave.loadBlob(audioBlob);
+        if(song.filepath){
+          const response = await axios.get(`http://localhost:50000/GetFile/${encodeURIComponent(song.filepath)}`, {
+            responseType: 'blob',
+            withCredentials: true,
+          });
+          const audioBlob = response.data;
+          wave.loadBlob(audioBlob);
+        }
+        
       } catch (err) {
         console.log(err);
       }
@@ -102,18 +133,24 @@ const AutoGenerate: React.FC = () => {
       transition={{ duration: 1 }}
       className="min-h-screen p-6 bg-gradient-to-br from-gray-900 via-black to-gray-800 text-white space-y-6"
     >
-      <motion.h2
-        className="text-4xl font-bold mb-6 text-center"
+      <motion.div
         initial={{ y: -20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 1 }}
+        className="mb-6 text-center"
       >
-        Choose your songs 🎶
-      </motion.h2>
+        <h1 className="text-5xl font-extrabold text-white">🔁 MashGenX</h1>
+        <p className="text-xl italic text-gray-300 mt-2">Generate your own mashup</p>
+      </motion.div>
 
       <SongSearch onAdd={handleAddSong} />
 
-      <SelectedSongs songs={selectedSongs} onRemove={handleRemoveSong} trackedSongs={trackedSongs} setTrackedSongs={setTrackedSongs} />
+      <SelectedSongs
+        songs={selectedSongs}
+        onRemove={handleRemoveSong}
+        trackedSongs={trackedSongs}
+        setTrackedSongs={setTrackedSongs}
+      />
 
       {trackedSongs.map((song, idx) => (
         <motion.div
@@ -123,7 +160,7 @@ const AutoGenerate: React.FC = () => {
           transition={{ duration: 0.5, delay: idx * 0.2 }}
           className="track bg-white text-black rounded-2xl p-4 shadow-lg"
         >
-          <h3 className="text-lg font-semibold mb-2">🎧Audio Track {idx + 1} - {song.title}</h3>
+          <h3 className="text-lg font-semibold mb-2">🎧 Audio Track {idx + 1} - {song.title}</h3>
           <div
             ref={waveformRefs[idx]}
             className="waveform w-full h-[100px] bg-gray-100 border border-gray-400"
@@ -146,9 +183,27 @@ const AutoGenerate: React.FC = () => {
             >
               Remove ✖
             </motion.button>
+            <motion.button
+              whileTap={{ scale: 0.95 }}
+              whileHover={{ scale: 1.05 }}
+              className="px-4 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600 text-sm"
+              onClick={() => handleAddToMultiTrack(song)}
+            >
+              MultiTrack ➕
+            </motion.button>
+            <motion.button
+              whileTap={{ scale: 0.95 }}
+              whileHover={{ scale: 1.05 }}
+              className="px-4 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600 text-sm"
+              onClick={() => handleCut(song, idx)}
+            >
+              Cut ✂️{cutTimeStamp?.timestamp1} : {cutTimeStamp?.timestamp2}
+            </motion.button>
           </div>
         </motion.div>
       ))}
+
+      {multiTrackedSongs.length > 0 && <MultiTrack songs={multiTrackedSongs} />}
 
       <motion.div
         className="flex justify-center"

@@ -23,10 +23,8 @@ const SelectedSongs: React.FC<Props> = ({ songs, onRemove, trackedSongs, setTrac
         withCredentials: true,
         headers: { 'Content-Type': 'application/json' }
       });
-
-      const encodedPath = encodeURIComponent(downloadRes.data.filepath);
-      const songUrl = `http://localhost:50000/GetFile/${encodedPath}`;
-      song.filepath = songUrl;
+      
+      song.filepath = downloadRes.data.filepath;
 
       setTrackedSongs((prev) => [...prev, song]);
     } catch (error) {

@@ -9,6 +9,7 @@ export const downloadYoutubeAudio = async (songTitle: string, songArtist: string
         const queryString: string = songTitle.replace(/ /g, "+") + " " + songArtist.replace(/ /g, "+") + " Audio";
         //Puts query into the url format replacing spaces with +'s
         const command: string = "yt-dlp";
+        const fileType = 'wav'
 
         //%(title) tells yt-dlp to name the file the song name.mp3
         //the output path is the relative path to the media folder
@@ -16,7 +17,7 @@ export const downloadYoutubeAudio = async (songTitle: string, songArtist: string
         const args: string[] = [
             "-x",
             "--audio-format",
-            "mp3",
+            "wav",
             "-o",
             outputPath,
             "--print-json",
@@ -53,7 +54,7 @@ export const downloadYoutubeAudio = async (songTitle: string, songArtist: string
                     //We want to only pass the relative file path to the frontend
                     const videoInfo = JSON.parse(stdoutJson);
                     //extension is always .mp3
-                    const relativeFolderPath = path.posix.join(folderPath, `${videoInfo?.fulltitle}.mp3`);
+                    const relativeFolderPath = path.posix.join(folderPath, `${videoInfo?.fulltitle}.${fileType}`);
                     //Sends only the relative file path to be stored as a reference on the frontend and minimise information disclosure
                     resolve(relativeFolderPath);
                 } catch (jsonError: any) {
