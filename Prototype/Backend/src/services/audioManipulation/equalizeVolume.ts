@@ -7,10 +7,10 @@ import path from "path";
 import { MEDIA_FILE_PATH } from "../..";
 
 
-export const equalizeVolume = async (baseSong: Song, otherSong: Song): Promise<string | null> => {
+export const equalizeVolume = async (folderPath:string , baseSong: Song, otherSong: Song): Promise<Song[] | null> => {
     
     //Integrated loudness (id kwaht this is but here is a constant)
-    const I: number = -24
+    const I: number = -5;
     const targetLRA: number = 7;
     const targetTP: number = -2;
 
@@ -30,7 +30,7 @@ export const equalizeVolume = async (baseSong: Song, otherSong: Song): Promise<s
 
             proccess.on('close', (code) => {
                 if(code === 0){
-                    resolve(output);
+                    resolve(errorOutput);
                 } else {
                     reject(new Error(`FFMPEG proccess failed with code: ${code} : ${errorOutput}`));
                 }
@@ -55,6 +55,7 @@ export const equalizeVolume = async (baseSong: Song, otherSong: Song): Promise<s
         try{
             const output: string = await runCommand(args);
             const jsonMatch: RegExpMatchArray | null = output.match(/\{[\s\S]*?\}/);
+            console.log("LOok here at the JSON ouput look here !!!!!!!!!!!: " + output);
             if(jsonMatch){
                 const jsonStr: string = jsonMatch[0];
                 const loundnormStats: LoudnormMeasuredStats = JSON.parse(jsonStr);
@@ -83,7 +84,8 @@ export const equalizeVolume = async (baseSong: Song, otherSong: Song): Promise<s
             `linear=true`//Linear gain adjustment dont know what that means but is good aparantly
         
         const songTitle = path.parse(path.basename(inputPath)).name;
-        const outputPath = path.join(MEDIA_FILE_PATH, "altered", `volNorm${songTitle}.wav`);
+        const outputPath = path.posix.join(folderPath, "altered", `volNorm${songTitle}.wav`);
+        const absoluteOutputPath = path.posix.join(process.cwd(), MEDIA_FILE_PATH, outputPath);
         const args: string[] = [
             '-i',
             inputPath,
@@ -91,35 +93,43 @@ export const equalizeVolume = async (baseSong: Song, otherSong: Song): Promise<s
             filterArgs,
             '-c:a',
             'pcm_s16le',
-            outputPath
+            absoluteOutputPath
         ];
 
         try{
             await runCommand(args);
-            console.log("Successfully ran normalization command for: " + inputPath);
+            return outputPath;
         } catch(err){
             console.error("Failed to run normalization command" + err);
             throw error;
         }
     }
 
-    return new Promise<string>(async (resolve, reject) => {
+    return new Promise<Song[]>(async (resolve, reject) => {
         if(baseSong.filepath != null && otherSong.filepath != null){
-            const basePath: string = baseSong.filepath;
-            const otherPath: string = otherSong.filepath;
+            const basePath: string = path.join(process.cwd(), MEDIA_FILE_PATH, baseSong.filepath);
+            const otherPath: string = path.join(process.cwd(), MEDIA_FILE_PATH, otherSong.filepath);
             try{
                 const [stats1, stats2] = await Promise.all([
                     analyseSongLoudness(basePath),
                     analyseSongLoudness(otherPath)
                 ])
+                const test = await analyseSongLoudness(basePath);
                 if(stats1 && stats2){
-                    await Promise.all([
+                    const [outputPath1, outputPath2] = await Promise.all([
                         applyNormalization(stats1, basePath),
                         applyNormalization(stats2, otherPath) 
                     ]);
-                    resolve("Song volumes normalized");
+                    if(outputPath1 != null && outputPath2 != null){
+                        baseSong.filepath = outputPath1;
+                        otherSong.filepath = outputPath2;
+                        resolve([baseSong, otherSong]);
+                    }
+                    else reject("Failed to attach new filepaths");
                 }
                 else{
+                    console.log(stats1, stats2, test)
+                    console.log("File paths: " + basePath + " : " + otherPath)
                     reject("Failed to analyse both songs");
                 }
 
