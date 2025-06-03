@@ -1,56 +1,116 @@
+// WaveformPlayer.tsx
 import React, { useEffect, useRef, useState } from 'react';
 import WaveSurfer from 'wavesurfer.js';
+import axios from 'axios';
+import { Song } from '@/components/types/song';
+import { CutRange } from '@/components/types/CutRange';
 
-type Props = {
-  audioUrl: string;
-};
+interface Props {
+  song: Song;
+  index: number;
+  onRemove: (index: number) => void;
+  onAddToMultiTrack: (song: Song) => void;
+  cutTimeStamp: CutRange;
+  setCutTimeStamp: React.Dispatch<React.SetStateAction<CutRange>>;
+  onCutFinished: (cutSong: Song) => void;
+}
 
-const WaveformPlayer: React.FC<Props> = ({ audioUrl }) => {
+const WaveformPlayer: React.FC<Props> = ({
+  song,
+  index,
+  onRemove,
+  onAddToMultiTrack,
+  cutTimeStamp,
+  setCutTimeStamp,
+  onCutFinished,
+}) => {
   const waveformRef = useRef<HTMLDivElement>(null);
-  const wavesurfer = useRef<WaveSurfer | null>(null);
+  const waveSurfer = useRef<WaveSurfer | null>(null);
   const [isReady, setIsReady] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
 
   useEffect(() => {
     if (waveformRef.current) {
-      wavesurfer.current = WaveSurfer.create({
+      waveSurfer.current = WaveSurfer.create({
         container: waveformRef.current,
-        waveColor: '#7dd3fc',
-        progressColor: '#0284c7',
-        height: 100,
+        waveColor: '#a2d2ff',
+        progressColor: '#0077b6',
+        height: 80,
         responsive: true,
       });
 
-      wavesurfer.current.on('ready', () => {
-        setIsReady(true);
-        console.log("✅ WaveSurfer is ready");
-      });
+      waveSurfer.current.on('ready', () => setIsReady(true));
+      waveSurfer.current.on('finish', () => setIsPlaying(false));
 
-      wavesurfer.current.load(audioUrl);
+      const fetchAndLoad = async () => {
+        try {
+          const response = await axios.get(`http://localhost:50000/GetFile/${encodeURIComponent(song.filepath)}`, {
+            responseType: 'blob',
+            withCredentials: true,
+          });
+          waveSurfer.current?.loadBlob(response.data);
+        } catch (error) {
+          console.error('Error loading waveform:', error);
+        }
+      };
+
+      fetchAndLoad();
     }
 
     return () => {
-      wavesurfer.current?.destroy();
+      waveSurfer.current?.destroy();
     };
-  }, [audioUrl]);
+  }, [song.filepath]);
 
   const togglePlay = () => {
-    if (wavesurfer.current && isReady) {
-      wavesurfer.current.playPause();
+    if (waveSurfer.current && isReady) {
+      waveSurfer.current.playPause();
+      setIsPlaying(!isPlaying);
+    }
+  };
+
+  const handleCut = async () => {
+    if (!waveSurfer.current) return;
+    const timestamp = waveSurfer.current.getCurrentTime();
+
+    if (cutTimeStamp.timestamp1) {
+      const newCutRange = { timestamp1: cutTimeStamp.timestamp1, timestamp2: timestamp };
+      if (newCutRange.timestamp1 < newCutRange.timestamp2) {
+        try {
+          const response = await axios.post(`http://localhost:50000/Cut/${newCutRange.timestamp1}/${newCutRange.timestamp2}`, song, {
+            withCredentials: true,
+            headers: { 'Content-Type': 'application/json' },
+          });
+          const cutSong: Song = response.data;
+          onCutFinished(cutSong);
+        } catch (error) {
+          console.error('Cut error:', error);
+        }
+      }
+      setCutTimeStamp({ timestamp1: null, timestamp2: null });
     } else {
-      console.warn("⏳ Audio not ready yet.");
+      setCutTimeStamp({ timestamp1: timestamp, timestamp2: null });
     }
   };
 
   return (
-    <div className="space-y-2">
-      <div ref={waveformRef} className="w-full bg-gray-700 rounded" />
-      <button
-        onClick={togglePlay}
-        className="px-4 py-2 bg-blue-500 text-white rounded"
-        disabled={!isReady}
-      >
-        {isReady ? 'Play / Pause' : 'Loading...'}
-      </button>
+    <div className="bg-white text-black rounded-2xl p-4 shadow-lg space-y-2">
+      <h3 className="text-lg font-semibold">🎧 Audio Track {index + 1} - {song.title}</h3>
+      <div ref={waveformRef} className="waveform w-full h-[100px] bg-gray-100 border border-gray-400" />
+      <div className="flex gap-2 mt-2">
+        <button onClick={togglePlay} className="px-4 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm">
+          {isPlaying ? 'Pause' : 'Play'}
+        </button>
+        <button onClick={() => onRemove(index)} className="px-4 py-1 bg-red-600 text-white rounded hover:bg-red-700 text-sm">
+          Remove ✖
+        </button>
+        <button onClick={() => onAddToMultiTrack(song)} className="px-4 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600 text-sm">
+          MultiTrack ➕
+        </button>
+        <button onClick={handleCut} className="px-4 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600 text-sm">
+          Cut ✂️
+        </button>
+      </div>
     </div>
   );
 };

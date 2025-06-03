@@ -1,3 +1,4 @@
+// SelectedSongs.tsx
 import React, { useState } from 'react';
 import { Song } from '@/components/types/song';
 import axios from 'axios';
@@ -5,17 +6,23 @@ import LoadingSpinner from '@/components/ui/LoadingSpinner';
 
 type Props = {
   songs: { rootSong: Song; similarSongs: Song[] | null }[];
-  onRemove: (index: number) => void;
+  setSongs: React.Dispatch<React.SetStateAction<{ rootSong: Song; similarSongs: Song[] | null }[]>>;
   trackedSongs: Song[];
   setTrackedSongs: React.Dispatch<React.SetStateAction<Song[]>>;
 };
 
-const SelectedSongs: React.FC<Props> = ({ songs, onRemove, trackedSongs, setTrackedSongs }) => {
+const SelectedSongs: React.FC<Props> = ({ songs, setSongs, trackedSongs, setTrackedSongs }) => {
   const [loadingIndexes, setLoadingIndexes] = useState<number[]>([]);
   const [showModal, setShowModal] = useState(false);
   const [currentSimilar, setCurrentSimilar] = useState<Song[]>([]);
   const [currentInfoTrack, setCurrentInfoTrack] = useState<Song>();
   const [modalType, setModalType] = useState<'similar' | 'info' | null>(null);
+
+  const handleRemove = (index: number) => {
+    const updated = [...songs];
+    updated.splice(index, 1);
+    setSongs(updated);
+  };
 
   const handleAddTrack = async (song: Song, index: number) => {
     try {
@@ -25,7 +32,6 @@ const SelectedSongs: React.FC<Props> = ({ songs, onRemove, trackedSongs, setTrac
         withCredentials: true,
         headers: { 'Content-Type': 'application/json' }
       });
-      
       song.filepath = downloadRes.data.filepath;
 
       setTrackedSongs((prev) => [...prev, song]);
@@ -58,26 +64,19 @@ const SelectedSongs: React.FC<Props> = ({ songs, onRemove, trackedSongs, setTrac
     <div className="bg-gray-800 p-4 rounded shadow text-white">
       <h3 className="text-xl font-semibold mb-3">🎵 Selected Songs</h3>
 
-      {songs.length === 0 && (
-        <p className="text-sm text-gray-400">No songs selected yet.</p>
-      )}
+      {songs.length === 0 && <p className="text-sm text-gray-400">No songs selected yet.</p>}
 
       <ul className="space-y-2">
         {songs.map((entry, index) => (
-          <li
-            key={index}
-            className="flex flex-col gap-2 bg-gray-700 p-3 rounded"
-          >
+          <li key={index} className="flex flex-col gap-2 bg-gray-700 p-3 rounded">
             <div className="flex items-center gap-2 text-white text-lg font-semibold">
               <span className="truncate max-w-[60%]">{entry.rootSong.title}</span>
-              <span className="text-gray-300 text-base font-medium italic truncate max-w-[40%]">
-                — {entry.rootSong.artist}
-              </span>
+              <span className="text-gray-300 text-base font-medium italic truncate max-w-[40%]">— {entry.rootSong.artist}</span>
             </div>
 
             <div className="flex gap-2 w-full">
               <button
-                onClick={() => onRemove(index)}
+                onClick={() => handleRemove(index)}
                 className="flex-1 text-red-400 hover:text-red-600 text-base font-semibold py-2 bg-gray-800 rounded"
               >
                 Remove ✖
@@ -124,7 +123,6 @@ const SelectedSongs: React.FC<Props> = ({ songs, onRemove, trackedSongs, setTrac
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-lg max-w-md w-full text-black">
-            
             {modalType === 'similar' && (
               <>
                 <h2 className="text-xl font-semibold mb-4">🎶 Similar Songs</h2>
@@ -157,8 +155,8 @@ const SelectedSongs: React.FC<Props> = ({ songs, onRemove, trackedSongs, setTrac
                 <h2 className="text-xl font-semibold mb-4">ℹ️ Track Info</h2>
                 <p><strong>Title:</strong> {currentInfoTrack.title}</p>
                 <p><strong>Artist:</strong> {currentInfoTrack.artist}</p>
-                <p><strong>Genre:</strong> {currentInfoTrack.genre || "-"}</p>
-                <p><strong>Key:</strong> {(currentInfoTrack.key + " " + currentInfoTrack.key_scale).trim() || "-"}</p>
+                <p><strong>Genre:</strong> {currentInfoTrack.genre || '-'}</p>
+                <p><strong>Key:</strong> {(currentInfoTrack.key + " " + currentInfoTrack.key_scale).trim() || '-'}</p>
                 <p><strong>Bpm:</strong> {currentInfoTrack.bpm !== 0 ? currentInfoTrack.bpm.toFixed() : '-'}</p>
                 <p><strong>Danceability:</strong> {Number(currentInfoTrack.danceability) !== 0 ? Number(currentInfoTrack.danceability).toFixed(2) : '-'}</p>
               </>
