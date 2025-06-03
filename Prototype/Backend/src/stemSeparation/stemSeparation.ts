@@ -44,10 +44,12 @@ export async function runDemucs(audioFilePath: string, outputDir: string): Promi
         const stemFiles = ["vocals.wav", "drums.wav", "bass.wav", "other.wav"];
         const stems = stemFiles
           .filter(file => files.includes(file))
-          .map(file => path.join(outputFolder, file));
+          .map(file => {
+            const relativePath = path.join(path.basename(outputDir), modelName, trackName, file);
+            return relativePath.replace(/\\/g, "/");
+          });
 
-        console.log("Final stems array:", stems);
-
+        console.log("✅ Final stems array:", stems);
         resolve(stems.length > 0 ? stems : null);
       } catch (err) {
         console.error("❌ Cannot read output folder or stems:", err);

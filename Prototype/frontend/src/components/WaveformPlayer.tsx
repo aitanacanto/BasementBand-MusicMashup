@@ -31,6 +31,9 @@ const WaveformPlayer: React.FC<Props> = ({
   const [isReady, setIsReady] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [stemPlayers, setStemPlayers] = useState<(WaveSurfer | null)[]>([]);
+  const stemContainers = useRef<(HTMLDivElement | null)[]>([]);
+  const [loadingStems, setLoadingStems] = useState(false);
 
   useEffect(() => {
     if (waveformRef.current) {
@@ -63,13 +66,12 @@ const WaveformPlayer: React.FC<Props> = ({
 
           if (updatedSong.stems != null) {
             for (const s of updatedSong.stems) {
-              console.log("Stem:", s);
+              console.log('Stem:', s);
             }
             onUpdateSong(updatedSong);
           } else {
-            console.log("JODETE 5");
+            console.log('No stems returned');
           }
-
         } catch (error) {
           console.error('Error in fetchAndLoad or Demucs:', error);
         }
@@ -114,6 +116,47 @@ const WaveformPlayer: React.FC<Props> = ({
     }
   };
 
+  const handleToggleDropdown = async () => {
+    const next = !showDropdown;
+    setShowDropdown(next);
+
+    if (next && song.stems?.length) {
+      setLoadingStems(true);
+      const players: (WaveSurfer | null)[] = [];
+
+      for (let i = 0; i < song.stems.length; i++) {
+        const container = stemContainers.current[i];
+        if (!container) continue;
+
+        const ws = WaveSurfer.create({
+          container,
+          waveColor: '#f59e0b',
+          progressColor: '#b45309',
+          height: 60,
+          responsive: true,
+        });
+
+        try {
+          const res = await axios.get(`http://localhost:50000/GetFile/${encodeURIComponent(song.stems[i])}`, {
+            responseType: 'blob',
+            withCredentials: true,
+          });
+          ws.loadBlob(res.data);
+        } catch (err) {
+          console.error('Stem load error:', err);
+        }
+
+        players[i] = ws;
+      }
+
+      setStemPlayers(players);
+      setLoadingStems(false);
+    } else {
+      stemPlayers.forEach((p) => p?.destroy());
+      setStemPlayers([]);
+    }
+  };
+
   return (
     <div className="bg-white text-black rounded-2xl p-4 shadow-lg space-y-2">
       <h3 className="text-lg font-semibold">🎧 Audio Track {index + 1} - {song.title}</h3>
@@ -134,15 +177,36 @@ const WaveformPlayer: React.FC<Props> = ({
       </div>
       <div>
         <button
-          onClick={() => setShowDropdown(!showDropdown)}
+          onClick={handleToggleDropdown}
           className="mt-4 text-sm font-semibold text-blue-600 hover:text-blue-300 transition-colors duration-200"
         >
           ▸ Stems
         </button>
         {showDropdown && (
-          <div className="mt-2 border border-gray-300 p-2 rounded bg-gray-50 text-sm text-gray-600">
-            {/* Placeholder for stem content */}
-            (Empty for now)
+          <div className="mt-2 border border-gray-300 p-2 rounded bg-gray-50 text-sm text-gray-600 space-y-4">
+            {loadingStems ? (
+              <p className="italic text-gray-400">Loading stems...</p>
+            ) : (
+              song.stems?.map((stemPath, idx) => (
+                <div key={idx} className="mb-4">
+                  <p className="text-xs font-semibold mb-1">🎛 {stemPath.split('/').pop()}</p>
+                  <div ref={(el) => stemContainers.current[idx] = el} className="w-full h-[60px] bg-gray-200" />
+                  <button
+                    onClick={() => {
+                      const player = stemPlayers[idx];
+                      if (player?.isPlaying()) {
+                        player.pause();
+                      } else {
+                        player?.play();
+                      }
+                    }}
+                    className="mt-1 text-xs px-2 py-1 bg-blue-400 text-white rounded"
+                  >
+                    Play / Pause
+                  </button>
+                </div>
+              ))
+            )}
           </div>
         )}
       </div>
