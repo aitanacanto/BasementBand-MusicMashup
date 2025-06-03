@@ -73,9 +73,9 @@ const AutoGenerate: React.FC = () => {
         headers: { 'Content-Type': 'application/json' }
     });
     for(let i = 0; i < alteredRes.data.length; i ++){
-      console.log(alteredRes.data[i]);
       handleAddToMultiTrack(alteredRes.data[i]);
     }
+    
   }
 
   useEffect(() => {

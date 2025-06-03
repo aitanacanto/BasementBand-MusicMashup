@@ -3,7 +3,6 @@ import path from "path";
 import { downloadYoutubeAudio } from "../../services/ytDownloader/ytDownloadService";
 import { Song } from "../../types/song";
 import { AlteredSong } from "../../types/AlteredSong";
-import { combineStems } from "../../services/audioManipulation/combineStems";
 import { MEDIA_FILE_PATH } from "../..";
 import { ChildProcessWithoutNullStreams } from "child_process";
 import { spawn } from "child_process";

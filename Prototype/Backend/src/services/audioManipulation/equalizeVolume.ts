@@ -7,7 +7,7 @@ import path from "path";
 import { MEDIA_FILE_PATH } from "../..";
 
 
-export const equalizeVolume = async (folderPath:string , baseSong: Song, otherSong: Song): Promise<Song[] | null> => {
+export const equalizeVolume = async (folderPath:string , song: Song): Promise<Song | null> => {
     
     //Integrated loudness (id kwaht this is but here is a constant)
     const I: number = -5;
@@ -55,7 +55,6 @@ export const equalizeVolume = async (folderPath:string , baseSong: Song, otherSo
         try{
             const output: string = await runCommand(args);
             const jsonMatch: RegExpMatchArray | null = output.match(/\{[\s\S]*?\}/);
-            console.log("LOok here at the JSON ouput look here !!!!!!!!!!!: " + output);
             if(jsonMatch){
                 const jsonStr: string = jsonMatch[0];
                 const loundnormStats: LoudnormMeasuredStats = JSON.parse(jsonStr);
@@ -105,31 +104,20 @@ export const equalizeVolume = async (folderPath:string , baseSong: Song, otherSo
         }
     }
 
-    return new Promise<Song[]>(async (resolve, reject) => {
-        if(baseSong.filepath != null && otherSong.filepath != null){
-            const basePath: string = path.join(process.cwd(), MEDIA_FILE_PATH, baseSong.filepath);
-            const otherPath: string = path.join(process.cwd(), MEDIA_FILE_PATH, otherSong.filepath);
+    return new Promise<Song>(async (resolve, reject) => {
+        if(song.filepath != null){
+            const songpath: string = path.join(process.cwd(), MEDIA_FILE_PATH, song.filepath);
             try{
-                const [stats1, stats2] = await Promise.all([
-                    analyseSongLoudness(basePath),
-                    analyseSongLoudness(otherPath)
-                ])
-                const test = await analyseSongLoudness(basePath);
-                if(stats1 && stats2){
-                    const [outputPath1, outputPath2] = await Promise.all([
-                        applyNormalization(stats1, basePath),
-                        applyNormalization(stats2, otherPath) 
-                    ]);
-                    if(outputPath1 != null && outputPath2 != null){
-                        baseSong.filepath = outputPath1;
-                        otherSong.filepath = outputPath2;
-                        resolve([baseSong, otherSong]);
+                const stats = await analyseSongLoudness(songpath);
+                if(stats){
+                    const outputPath = await applyNormalization(stats, songpath);
+                    if(outputPath != null){
+                        song.filepath = outputPath;
+                        resolve(song);
                     }
                     else reject("Failed to attach new filepaths");
                 }
                 else{
-                    console.log(stats1, stats2, test)
-                    console.log("File paths: " + basePath + " : " + otherPath)
                     reject("Failed to analyse both songs");
                 }
 

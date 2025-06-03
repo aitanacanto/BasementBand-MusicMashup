@@ -1,9 +1,8 @@
 import express, { Request, Response } from "express";
-import path from "path";
+import path, { normalize } from "path";
 import { downloadYoutubeAudio } from "../../services/ytDownloader/ytDownloadService";
 import { Song } from "../../types/song";
 import { AlteredSong } from "../../types/AlteredSong";
-import { combineStems } from "../../services/audioManipulation/combineStems";
 import { equalizeVolume } from "../../services/audioManipulation/equalizeVolume";
 import { MEDIA_FILE_PATH } from "../..";
 import { timeStretch } from "../../services/audioManipulation/timeStretch";
@@ -27,8 +26,9 @@ CombineRoute.post('/Combine/', async (req: Request, res: Response) => {
         const alteredSongs: Song[] = [];
         for(let i = 1; i < songs.length; i ++){
             const stretchedSong: Song = await timeStretch(base, songs[i], sessionId);
-            if(stretchedSong != null){
-                alteredSongs.push(stretchedSong);
+            const equalizedSong: Song | null = await equalizeVolume(sessionId, stretchedSong);
+            if(equalizedSong != null){
+                alteredSongs.push(equalizedSong);
             }
             else res.status(500).send("Failed to stretch provided song");
         }
