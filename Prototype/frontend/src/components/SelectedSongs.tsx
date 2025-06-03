@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Song } from '@/components/types/song';
 import axios from 'axios';
+import LoadingSpinner from '@/components/ui/LoadingSpinner';
 
 type Props = {
   songs: { rootSong: Song; similarSongs: Song[] | null }[];
@@ -82,17 +83,16 @@ const SelectedSongs: React.FC<Props> = ({ songs, onRemove, trackedSongs, setTrac
                 disabled={loadingIndexes.includes(index)}
                 className={`flex-1 text-base font-semibold py-2 rounded bg-gray-800 ${
                   loadingIndexes.includes(index)
-                    ? 'text-gray-400 cursor-not-allowed'
+                    ? 'cursor-not-allowed text-gray-400'
                     : 'text-green-400 hover:text-green-600'
                 }`}
               >
                 {loadingIndexes.includes(index) ? (
                   <span className="flex items-center justify-center gap-2">
-                    <svg className="animate-spin h-4 w-4 text-green-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
-                    </svg>
-                    Loading...
+                    <>
+                      <LoadingSpinner />
+                      Loading...
+                    </>
                   </span>
                 ) : (
                   'Add Track ➕'
