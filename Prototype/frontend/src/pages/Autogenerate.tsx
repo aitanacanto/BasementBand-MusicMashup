@@ -126,7 +126,6 @@ const AutoGenerate: React.FC = () => {
                 withCredentials: true,
                 headers: { 'Content-Type': 'application/json' },
               });
-
               const updatedSong: Song = res.data;
               setTrackedSongs((prev) =>
                 prev.map((s) => (s.filepath === song.filepath ? updatedSong : s))
