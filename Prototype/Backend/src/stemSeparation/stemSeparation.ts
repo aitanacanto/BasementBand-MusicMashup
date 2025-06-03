@@ -49,10 +49,10 @@ export async function runDemucs(audioFilePath: string, outputDir: string): Promi
             return relativePath.replace(/\\/g, "/");
           });
 
-        console.log("✅ Final stems array:", stems);
+        console.log("Final stems array:", stems);
         resolve(stems.length > 0 ? stems : null);
       } catch (err) {
-        console.error("❌ Cannot read output folder or stems:", err);
+        console.error("Cannot read output folder or stems:", err);
         resolve(null);
       }
 

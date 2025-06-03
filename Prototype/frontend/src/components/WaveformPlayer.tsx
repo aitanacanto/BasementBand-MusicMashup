@@ -120,7 +120,11 @@ const WaveformPlayer: React.FC<Props> = ({
     const next = !showDropdown;
     setShowDropdown(next);
 
-    if (next && song.stems?.length) {
+    if (next) {
+      if (!song.stems || song.stems.length === 0) {
+        setLoadingStems(true);
+        return;
+      }
       setLoadingStems(true);
       const players: (WaveSurfer | null)[] = [];
 
@@ -156,6 +160,8 @@ const WaveformPlayer: React.FC<Props> = ({
       setStemPlayers([]);
     }
   };
+
+
 
   return (
     <div className="bg-white text-black rounded-2xl p-4 shadow-lg space-y-2">
