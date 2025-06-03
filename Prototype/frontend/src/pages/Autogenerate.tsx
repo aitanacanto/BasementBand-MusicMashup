@@ -49,8 +49,6 @@ const AutoGenerate: React.FC = () => {
     const wave = waves.current[index];
     if(!wave) return ;
     let timestamp = wave.getCurrentTime();
-    console.log(timestamp);
-    console.log(cutTimeStamp);
     if(cutTimeStamp.timestamp1){
       cutTimeStamp.timestamp2 = timestamp;
     }
@@ -60,9 +58,24 @@ const AutoGenerate: React.FC = () => {
         headers: { 'Content-Type': 'application/json' }
       });
       const cutSong: Song = cutRes.data;
+      cutTimeStamp.timestamp1 = null;
+      cutTimeStamp.timestamp2 = null;
       handleAddToMultiTrack(cutSong);
     }
     cutTimeStamp.timestamp1 = timestamp;
+  }
+
+  const handleMashup = async () => {
+    //const wave = waves.current[index];
+    console.log("Request Sent To mashup Songs")
+    const alteredRes = await axios.post(`http://localhost:50000/Combine/`, trackedSongs, {
+        withCredentials: true,
+        headers: { 'Content-Type': 'application/json' }
+    });
+    for(let i = 0; i < alteredRes.data.length; i ++){
+      handleAddToMultiTrack(alteredRes.data[i]);
+    }
+    
   }
 
   useEffect(() => {
@@ -197,7 +210,7 @@ const AutoGenerate: React.FC = () => {
               className="px-4 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600 text-sm"
               onClick={() => handleCut(song, idx)}
             >
-              Cut ✂️{cutTimeStamp?.timestamp1} : {cutTimeStamp?.timestamp2}
+              Cut ✂️
             </motion.button>
           </div>
         </motion.div>
@@ -211,7 +224,7 @@ const AutoGenerate: React.FC = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8 }}
       >
-        <Button className="mt-8 px-6 py-3 text-lg bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 shadow-xl">
+        <Button onClick={handleMashup} className="mt-8 px-6 py-3 text-lg bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 shadow-xl">
           🚀 Create Mashup
         </Button>
       </motion.div>

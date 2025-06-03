@@ -79,7 +79,29 @@ In order to use most of these functions you will need a number of command line t
 
 7. Press okay again to save your changes. You can restart your machine now or better after you have done all of your command line dependancy installations.
 
+### Rubberband
+
+1. Download the relevant executable binaries from this link: https://breakfastquay.com/rubberband/ 
+
+2. Unzip the folder to your C drive (or any location) and rename the folder rubberband
+
+3. Type Edit the environment and system variables (on windows) into the start menu search bar.
+
+4. Open the environment and system variables editor and click the environment variables button.
+
+5. Click on the variable Path under system variables (The bottom box) then click the edit button
+
+6. Click the new button then put the path to the rubberband folder in the text box Then press okay.
+
+### Demucs
+
+1. Run the following command in your terminal: pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu 
+
+2. Then Run this in your terminal: pip install -U demucs
+
 Your path variables should look something like:
 
 C:\yt-dlp
 C:\FFMPEG\bin
+C:\rubberband
+

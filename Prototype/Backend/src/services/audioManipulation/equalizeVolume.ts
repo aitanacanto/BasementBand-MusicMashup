@@ -7,10 +7,10 @@ import path from "path";
 import { MEDIA_FILE_PATH } from "../..";
 
 
-export const equalizeVolume = async (baseSong: Song, otherSong: Song): Promise<string | null> => {
+export const equalizeVolume = async (folderPath:string , song: Song): Promise<Song | null> => {
     
     //Integrated loudness (id kwaht this is but here is a constant)
-    const I: number = -24
+    const I: number = -5;
     const targetLRA: number = 7;
     const targetTP: number = -2;
 
@@ -30,7 +30,7 @@ export const equalizeVolume = async (baseSong: Song, otherSong: Song): Promise<s
 
             proccess.on('close', (code) => {
                 if(code === 0){
-                    resolve(output);
+                    resolve(errorOutput);
                 } else {
                     reject(new Error(`FFMPEG proccess failed with code: ${code} : ${errorOutput}`));
                 }
@@ -83,7 +83,8 @@ export const equalizeVolume = async (baseSong: Song, otherSong: Song): Promise<s
             `linear=true`//Linear gain adjustment dont know what that means but is good aparantly
         
         const songTitle = path.parse(path.basename(inputPath)).name;
-        const outputPath = path.join(MEDIA_FILE_PATH, "altered", `volNorm${songTitle}.wav`);
+        const outputPath = path.posix.join(folderPath, "altered", `volNorm${songTitle}.wav`);
+        const absoluteOutputPath = path.posix.join(process.cwd(), MEDIA_FILE_PATH, outputPath);
         const args: string[] = [
             '-i',
             inputPath,
@@ -91,33 +92,30 @@ export const equalizeVolume = async (baseSong: Song, otherSong: Song): Promise<s
             filterArgs,
             '-c:a',
             'pcm_s16le',
-            outputPath
+            absoluteOutputPath
         ];
 
         try{
             await runCommand(args);
-            console.log("Successfully ran normalization command for: " + inputPath);
+            return outputPath;
         } catch(err){
             console.error("Failed to run normalization command" + err);
             throw error;
         }
     }
 
-    return new Promise<string>(async (resolve, reject) => {
-        if(baseSong.filepath != null && otherSong.filepath != null){
-            const basePath: string = baseSong.filepath;
-            const otherPath: string = otherSong.filepath;
+    return new Promise<Song>(async (resolve, reject) => {
+        if(song.filepath != null){
+            const songpath: string = path.join(process.cwd(), MEDIA_FILE_PATH, song.filepath);
             try{
-                const [stats1, stats2] = await Promise.all([
-                    analyseSongLoudness(basePath),
-                    analyseSongLoudness(otherPath)
-                ])
-                if(stats1 && stats2){
-                    await Promise.all([
-                        applyNormalization(stats1, basePath),
-                        applyNormalization(stats2, otherPath) 
-                    ]);
-                    resolve("Song volumes normalized");
+                const stats = await analyseSongLoudness(songpath);
+                if(stats){
+                    const outputPath = await applyNormalization(stats, songpath);
+                    if(outputPath != null){
+                        song.filepath = outputPath;
+                        resolve(song);
+                    }
+                    else reject("Failed to attach new filepaths");
                 }
                 else{
                     reject("Failed to analyse both songs");
