@@ -17,7 +17,11 @@ const AutoGenerate: React.FC = () => {
   const [cutTimeStamp, setCutTimeStamp] = useState<CutRange>({ timestamp1: null, timestamp2: null });
 
   const handleRemoveTrackedSong = (index: number) => {
-    setTrackedSongs((prev) => prev.filter((_, i) => i !== index));
+    setTrackedSongs((prevTrackedSongs) => {
+      const updatedTrackedSongs = [...prevTrackedSongs];
+      updatedTrackedSongs.splice(index, 1);
+      return updatedTrackedSongs;
+    });
   };
 
   const handleAddToMultiTrack = (song: Song) => {

@@ -6,19 +6,30 @@ import { MEDIA_FILE_PATH } from "../..";
 
 export const StemRoute = express.Router();
 
-StemRoute.post("/run-demucs",async (req, res) => {
+StemRoute.post("/run-demucs", async (req, res) => {
   const song: Song = req.body;
 
   try {
     if (!song.filepath) {
-       res.status(400).json({ error: "No filepath provided in song object." });
-       return
+      res.status(400).json({ error: "No filepath provided in song object." });
+      return;
     }
+
+    const sessionId = (req as any).sessionId as string;
+    if (!sessionId) {
+      res.status(400).json({ error: "No session ID provided." });
+      return;
+    }
+
     const absoluteSongPath = path.join(process.cwd(), MEDIA_FILE_PATH, song.filepath);
-    const stems = await runDemucs(absoluteSongPath);
+
+    const outputDir = path.join(process.cwd(), MEDIA_FILE_PATH, sessionId, "stems");
+
+    const stems = await runDemucs(absoluteSongPath, outputDir);
+
     const updatedSong: Song = {
       ...song,
-      stems
+      stems,
     };
 
     res.json(updatedSong);

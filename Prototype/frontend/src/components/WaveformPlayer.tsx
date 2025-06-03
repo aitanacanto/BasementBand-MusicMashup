@@ -28,6 +28,7 @@ const WaveformPlayer: React.FC<Props> = ({
   const waveSurfer = useRef<WaveSurfer | null>(null);
   const [isReady, setIsReady] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [showDropdown, setShowDropdown] = useState(false);
 
   useEffect(() => {
     if (waveformRef.current) {
@@ -48,9 +49,19 @@ const WaveformPlayer: React.FC<Props> = ({
             responseType: 'blob',
             withCredentials: true,
           });
+
           waveSurfer.current?.loadBlob(response.data);
+          console.log('FilePath:', song.filepath);
+
+          const res = await axios.post('http://localhost:50000/api/stem/run-demucs', song, {
+            withCredentials: true,
+            headers: { 'Content-Type': 'application/json' },
+          });
+          const updatedSong: Song = res.data;
+          onCutFinished(updatedSong);
+
         } catch (error) {
-          console.error('Error loading waveform:', error);
+          console.error('Error in fetchAndLoad or Demucs:', error);
         }
       };
 
@@ -104,12 +115,26 @@ const WaveformPlayer: React.FC<Props> = ({
         <button onClick={() => onRemove(index)} className="px-4 py-1 bg-red-600 text-white rounded hover:bg-red-700 text-sm">
           Remove ✖
         </button>
-        <button onClick={() => onAddToMultiTrack(song)} className="px-4 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600 text-sm">
+        <button onClick={() => onAddToMultiTrack(song)} className="px-4 py-1 bg-yellow-600 text-white rounded hover:bg-yellow-600 text-sm">
           MultiTrack ➕
         </button>
-        <button onClick={handleCut} className="px-4 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600 text-sm">
+        <button onClick={handleCut} className="px-4 py-1 bg-yellow-400 text-white rounded hover:bg-yellow-600 text-sm">
           Cut ✂️
         </button>
+      </div>
+      <div>
+        <button
+          onClick={() => setShowDropdown(!showDropdown)}
+          className="mt-4 text-sm font-semibold text-blue-600 hover:text-blue-300 transition-colors duration-200"
+        >
+          ▸ Stems
+        </button>
+        {showDropdown && (
+          <div className="mt-2 border border-gray-300 p-2 rounded bg-gray-50 text-sm text-gray-600">
+            {/* Placeholder for stem content */}
+            (Empty for now)
+          </div>
+        )}
       </div>
     </div>
   );

@@ -36,20 +36,25 @@ CombineRoute.post('/Combine/', async (req: Request, res: Response) => {
         //We still want to stem separate it
         alteredSongs.push(base);
         //Pass song file
-        for(let i = 0; i < alteredSongs.length; i ++){
-            const songPath = songs[i].filepath;
-            if(songPath != null){
-                const absoluteSongPath: string = path.posix.join(process.cwd(), MEDIA_FILE_PATH, songPath);
-                if(absoluteSongPath != null){
-                    const stems: Array<string> | null = await runDemucs(absoluteSongPath);
-                    if(stems != null){
-                        alteredSongs[i].stems = stems;
-                    }
-                }
-                else res.status(500).send("Song filepath wrong")
+        for (let i = 0; i < alteredSongs.length; i++) {
+        const songPath = songs[i].filepath;
+        if (songPath != null) {
+            const absoluteSongPath: string = path.posix.join(process.cwd(), MEDIA_FILE_PATH, songPath);
+
+            if (absoluteSongPath != null) {
+            const outputDir: string = path.posix.join(process.cwd(), MEDIA_FILE_PATH, sessionId, "stems");
+
+            const stems: Array<string> | null = await runDemucs(absoluteSongPath, outputDir);
+
+            if (stems != null) {
+                alteredSongs[i].stems = stems;
             }
-            else res.status(500).send("Failed to separate songs stems")
+            } else {
+            res.status(500).send("Song filepath wrong");
+            }
+        } else {
+            res.status(500).send("Failed to separate songs stems");
         }
-        res.send(alteredSongs);
+        }
     }
 });

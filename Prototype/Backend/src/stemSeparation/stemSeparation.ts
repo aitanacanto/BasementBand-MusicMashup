@@ -6,8 +6,9 @@ import * as fs from "fs/promises";
  * Runs Demucs stem separation on a given local audio file.
  * Returns an array of output stem file paths, or null if none found.
  * @param audioFilePath Full path to the local audio file.
+ * @param outputDir Target directory where separated stems should be saved.
  */
-export async function runDemucs(audioFilePath: string): Promise<string[] | null> {
+export async function runDemucs(audioFilePath: string, outputDir: string): Promise<string[] | null> {
   // 1. Check if the input audio file exists.
   try {
     await fs.access(audioFilePath);
@@ -19,9 +20,17 @@ export async function runDemucs(audioFilePath: string): Promise<string[] | null>
   // 2. Run Demucs using the child_process.spawn function.
   //    Demucs will process the audio file and output stems in a folder.
   return new Promise((resolve, reject) => {
-    // Start the Demucs process with the audio file as argument.
     const resolvedAudioPath = path.resolve(audioFilePath);
-    const demucsProcess = spawn("demucs", [resolvedAudioPath]);
+
+    // Sanitize the filename for safe directory use
+    const encodedTrackName = encodeURIComponent(path.basename(audioFilePath, path.extname(audioFilePath)));
+
+    // Add the --out and --filename arguments to set output dir and ensure proper file format
+    const demucsProcess = spawn("demucs", [
+      "--out", outputDir,
+      "--filename", `${encodedTrackName}/{stem}.wav`,
+      resolvedAudioPath
+    ]);
 
     // Listen for any output from Demucs and print it to the console.
     demucsProcess.stdout.on("data", (data) => {
@@ -38,11 +47,9 @@ export async function runDemucs(audioFilePath: string): Promise<string[] | null>
       // If Demucs finished successfully (exit code 0)...
       if (code === 0) {
         // 3. Build the path to the output folder where Demucs puts the stems.
-        //    The folder is usually: separated/htdemucs/<songname>/
         const outputFolder = path.join(
-          "separated",
-          "htdemucs",
-          path.basename(audioFilePath, path.extname(audioFilePath))
+          outputDir,
+          encodedTrackName
         );
 
         // 4. List all expected stem filenames.
