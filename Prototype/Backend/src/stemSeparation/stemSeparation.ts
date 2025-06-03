@@ -20,7 +20,8 @@ export async function runDemucs(audioFilePath: string): Promise<string[] | null>
   //    Demucs will process the audio file and output stems in a folder.
   return new Promise((resolve, reject) => {
     // Start the Demucs process with the audio file as argument.
-    const demucsProcess = spawn("demucs", [audioFilePath]);
+    const resolvedAudioPath = path.resolve(audioFilePath);
+    const demucsProcess = spawn("demucs", [resolvedAudioPath]);
 
     // Listen for any output from Demucs and print it to the console.
     demucsProcess.stdout.on("data", (data) => {

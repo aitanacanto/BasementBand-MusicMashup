@@ -8,6 +8,7 @@ import { motion } from 'framer-motion';
 import { Song } from '@/components/types/song';
 import MultiTrack from '@/components/MultiTrack';
 import { CutRange } from '@/components/types/CutRange';
+import * as path from "path";
 
 const AutoGenerate: React.FC = () => {
   const [selectedSongs, setSelectedSongs] = useState<{ rootSong: Song; similarSongs: Song[] | null }[]>([]);
@@ -104,19 +105,41 @@ const AutoGenerate: React.FC = () => {
         height: 80,
         responsive: true,
       });
+
       try {
-        if(song.filepath){
-          const response = await axios.get(`http://localhost:50000/GetFile/${encodeURIComponent(song.filepath)}`, {
-            responseType: 'blob',
-            withCredentials: true,
-          });
+        if (song.filepath) {
+          const response = await axios.get(
+            `http://localhost:50000/GetFile/${encodeURIComponent(song.filepath)}`,
+            {
+              responseType: 'blob',
+              withCredentials: true,
+            }
+          );
+
           const audioBlob = response.data;
           wave.loadBlob(audioBlob);
+          console.log('FilePath:', song.filepath);
+
+          (async () => {
+            try {
+              const res = await axios.post('http://localhost:50000/api/stem/run-demucs', song, {
+                withCredentials: true,
+                headers: { 'Content-Type': 'application/json' },
+              });
+
+              const updatedSong: Song = res.data;
+              setTrackedSongs((prev) =>
+                prev.map((s) => (s.filepath === song.filepath ? updatedSong : s))
+              );
+            } catch (err) {
+              console.error('Error running Demucs in loadWaveForms:', err);
+            }
+          })();
         }
-        
       } catch (err) {
-        console.log(err);
+        console.error('Error loading waveform:', err);
       }
+
       waves.current.push(wave);
 
       wave.on('finish', () => {
