@@ -9,77 +9,52 @@ import * as fs from "fs/promises";
  * @param outputDir Target directory where separated stems should be saved.
  */
 export async function runDemucs(audioFilePath: string, outputDir: string): Promise<string[] | null> {
-  // 1. Check if the input audio file exists.
   try {
     await fs.access(audioFilePath);
   } catch {
-    // If the file doesn't exist, throw an error and stop.
     throw new Error(`The provided file path does not exist: ${audioFilePath}`);
   }
 
-  // 2. Run Demucs using the child_process.spawn function.
-  //    Demucs will process the audio file and output stems in a folder.
   return new Promise((resolve, reject) => {
     const resolvedAudioPath = path.resolve(audioFilePath);
+    const trackName = path.basename(audioFilePath, path.extname(audioFilePath)).replace(/[^a-zA-Z0-9-_]/g, '_');
+    const modelName = "htdemucs"; // default model used by Demucs
 
-    // Sanitize the filename for safe directory use
-    const encodedTrackName = encodeURIComponent(path.basename(audioFilePath, path.extname(audioFilePath)));
-
-    // Add the --out and --filename arguments to set output dir and ensure proper file format
     const demucsProcess = spawn("demucs", [
       "--out", outputDir,
-      "--filename", `${encodedTrackName}/{stem}.wav`,
+      "--filename", `${trackName}/{stem}.wav`,
       resolvedAudioPath
     ]);
 
-    // Listen for any output from Demucs and print it to the console.
     demucsProcess.stdout.on("data", (data) => {
       console.log(`[demucs stdout]: ${data}`);
     });
 
-    // Listen for any error output from Demucs and print it to the console.
     demucsProcess.stderr.on("data", (data) => {
       console.error(`[demucs stderr]: ${data}`);
     });
 
-    // When Demucs finishes, this event fires.
     demucsProcess.on("close", async (code) => {
-      // If Demucs finished successfully (exit code 0)...
-      if (code === 0) {
-        // 3. Build the path to the output folder where Demucs puts the stems.
-        const outputFolder = path.join(
-          outputDir,
-          encodedTrackName
-        );
+      const outputFolder = path.join(outputDir, modelName, trackName);
 
-        // 4. List all expected stem filenames.
-        const stemFiles = [
-          "vocals.wav",
-          "drums.wav",
-          "bass.wav",
-          "other.wav",
-        ];
+      try {
+        const files = await fs.readdir(outputFolder);
+        console.log("Files in folder:", files);
 
-        // 5. Prepare an array to hold the full paths of the stem files that exist.
-        const stems: string[] = [];
+        const stemFiles = ["vocals.wav", "drums.wav", "bass.wav", "other.wav"];
+        const stems = stemFiles
+          .filter(file => files.includes(file))
+          .map(file => path.join(outputFolder, file));
 
-        // 6. For each expected stem file, check if it exists in the output folder.
-        for (const fileName of stemFiles) {
-          const stemPath = path.join(outputFolder, fileName);
-          try {
-            // If the stem file exists, add its path to the stems array.
-            await fs.access(stemPath);
-            stems.push(stemPath);
-          } catch {
-            // If the file doesn't exist, skip it (don't add to the array).
-          }
-        }
+        console.log("Final stems array:", stems);
 
-        // 7. If at least one stem was found, resolve with the array.
-        //    Otherwise, resolve with null.
         resolve(stems.length > 0 ? stems : null);
-      } else {
-        // If Demucs failed (non-zero exit code), reject with an error.
+      } catch (err) {
+        console.error("❌ Cannot read output folder or stems:", err);
+        resolve(null);
+      }
+
+      if (code !== 0) {
         reject(new Error(`Demucs exited with code ${code}`));
       }
     });

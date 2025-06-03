@@ -13,6 +13,7 @@ interface Props {
   cutTimeStamp: CutRange;
   setCutTimeStamp: React.Dispatch<React.SetStateAction<CutRange>>;
   onCutFinished: (cutSong: Song) => void;
+  onUpdateSong: (song: Song) => void;
 }
 
 const WaveformPlayer: React.FC<Props> = ({
@@ -23,6 +24,7 @@ const WaveformPlayer: React.FC<Props> = ({
   cutTimeStamp,
   setCutTimeStamp,
   onCutFinished,
+  onUpdateSong,
 }) => {
   const waveformRef = useRef<HTMLDivElement>(null);
   const waveSurfer = useRef<WaveSurfer | null>(null);
@@ -58,7 +60,15 @@ const WaveformPlayer: React.FC<Props> = ({
             headers: { 'Content-Type': 'application/json' },
           });
           const updatedSong: Song = res.data;
-          onCutFinished(updatedSong);
+
+          if (updatedSong.stems != null) {
+            for (const s of updatedSong.stems) {
+              console.log("Stem:", s);
+            }
+            onUpdateSong(updatedSong);
+          } else {
+            console.log("JODETE 5");
+          }
 
         } catch (error) {
           console.error('Error in fetchAndLoad or Demucs:', error);

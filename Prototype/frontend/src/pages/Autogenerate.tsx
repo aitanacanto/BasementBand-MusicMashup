@@ -88,9 +88,15 @@ const AutoGenerate: React.FC = () => {
             cutTimeStamp={cutTimeStamp}
             setCutTimeStamp={setCutTimeStamp}
             onCutFinished={handleCutFinished}
+            onUpdateSong={(newSong) =>
+              setTrackedSongs(prev =>
+                prev.map((s, i) => i === idx ? newSong : s)
+              )
+            }
           />
         </motion.div>
       ))}
+
 
       {multiTrackedSongs.length > 0 && <MultiTrack songs={multiTrackedSongs} />}
 
