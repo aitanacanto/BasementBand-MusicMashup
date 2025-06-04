@@ -109,6 +109,34 @@ const WaveformPlayer: React.FC<Props> = ({
     }
   };
 
+  const handleCutGeneric = async (player: WaveSurfer | null, filepath: string) => {
+    if (!player) return;
+    const timestamp = player.getCurrentTime();
+
+    if (cutTimeStamp.timestamp1) {
+      const newCutRange = { timestamp1: cutTimeStamp.timestamp1, timestamp2: timestamp };
+      if (newCutRange.timestamp1 < newCutRange.timestamp2) {
+        try {
+          const response = await axios.post(
+            `http://localhost:50000/Cut/${newCutRange.timestamp1}/${newCutRange.timestamp2}`,
+            { ...song, filepath },
+            {
+              withCredentials: true,
+              headers: { 'Content-Type': 'application/json' },
+            }
+          );
+          const cutSong: Song = response.data;
+          onCutFinished(cutSong);
+        } catch (error) {
+          console.error('Stem cut error:', error);
+        }
+      }
+      setCutTimeStamp({ timestamp1: null, timestamp2: null });
+    } else {
+      setCutTimeStamp({ timestamp1: timestamp, timestamp2: null });
+    }
+  };
+
   useEffect(() => {
     const loadStems = async () => {
       if (!song.stems) return;
@@ -176,7 +204,7 @@ const WaveformPlayer: React.FC<Props> = ({
             <div key={`${stemPath}-${idx}`} className="text-xs space-y-1">
               <p className="font-semibold">{stemPath.split('/').pop()}</p>
               <div ref={setStemContainerRef(idx)} className="w-full h-[40px] bg-gray-200 rounded" />
-              
+
               <div className="flex gap-2">
                 <button
                   onClick={() => {
@@ -212,6 +240,13 @@ const WaveformPlayer: React.FC<Props> = ({
                   className="text-xs px-2 py-1 bg-green-500 text-white rounded"
                 >
                   Add Multitrack
+                </button>
+
+                <button
+                  onClick={() => handleCutGeneric(stemPlayers[idx], stemPath)}
+                  className="text-xs px-2 py-1 bg-yellow-500 text-white rounded"
+                >
+                  Cut ✂️
                 </button>
               </div>
             </div>
