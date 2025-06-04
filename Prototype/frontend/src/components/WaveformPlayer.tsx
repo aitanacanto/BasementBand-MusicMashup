@@ -173,22 +173,47 @@ const WaveformPlayer: React.FC<Props> = ({
       {song.stems && song.stems.length > 0 && (
         <div className="mt-4 space-y-3 border-t border-gray-300 pt-4">
           {song.stems.map((stemPath, idx) => (
-            <div key={`${stemPath}-${idx}`} className="text-xs">
-              <p className="font-semibold mb-1">🎛 {stemPath.split('/').pop()}</p>
+            <div key={`${stemPath}-${idx}`} className="text-xs space-y-1">
+              <p className="font-semibold">{stemPath.split('/').pop()}</p>
               <div ref={setStemContainerRef(idx)} className="w-full h-[40px] bg-gray-200 rounded" />
-              <button
-                onClick={() => {
-                  const player = stemPlayers[idx];
-                  if (player?.isPlaying()) {
-                    player.pause();
-                  } else {
-                    player?.play();
-                  }
-                }}
-                className="mt-1 text-xs px-2 py-1 bg-blue-400 text-white rounded"
-              >
-                Play / Pause
-              </button>
+              
+              <div className="flex gap-2">
+                <button
+                  onClick={() => {
+                    const player = stemPlayers[idx];
+                    if (player?.isPlaying()) {
+                      player.pause();
+                    } else {
+                      player?.play();
+                    }
+                  }}
+                  className="text-xs px-2 py-1 bg-blue-400 text-white rounded"
+                >
+                  Play / Pause
+                </button>
+
+                <button
+                  onClick={() => {
+                    const fakeSong: Song = {
+                      mbid: '',
+                      title: `Stem ${idx + 1}`,
+                      artist: song.artist || '',
+                      key: '',
+                      key_scale: '',
+                      bpm: song.bpm || 0,
+                      genre: '',
+                      danceability: 0,
+                      first_beat: 0,
+                      filepath: stemPath,
+                      stems: null,
+                    };
+                    onAddToMultiTrack(fakeSong);
+                  }}
+                  className="text-xs px-2 py-1 bg-green-500 text-white rounded"
+                >
+                  Add Multitrack
+                </button>
+              </div>
             </div>
           ))}
         </div>
