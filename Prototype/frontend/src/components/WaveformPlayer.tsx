@@ -138,12 +138,8 @@ const WaveformPlayer: React.FC<Props> = ({
   };
 
   useEffect(() => {
-    let cancelled = false;
-
-    const allContainersReady = song.stems?.every((_, i) => stemContainerRefs.current[i]) ?? false;
-
     const loadStems = async () => {
-      if (!song.stems || !song.altered || !allContainersReady) return;
+      if (!song.stems) return;
 
       const newPlayers: (WaveSurfer | null)[] = [];
 
@@ -157,7 +153,6 @@ const WaveformPlayer: React.FC<Props> = ({
           progressColor: '#b45309',
           height: 40,
           responsive: true,
-          normalize: true,
         });
 
         try {
@@ -165,10 +160,8 @@ const WaveformPlayer: React.FC<Props> = ({
             responseType: 'blob',
             withCredentials: true,
           });
-          if (!cancelled) {
-            ws.loadBlob(res.data);
-            newPlayers[i] = ws;
-          }
+          ws.loadBlob(res.data);
+          newPlayers[i] = ws;
         } catch (err) {
           console.error(`Error loading stem ${i}:`, err);
           ws.destroy();
@@ -176,21 +169,14 @@ const WaveformPlayer: React.FC<Props> = ({
         }
       }
 
-      if (!cancelled) {
-        setStemPlayers(newPlayers);
-      }
+      setStemPlayers(newPlayers);
     };
 
-    if (stemPlayers.length === 0 && allContainersReady) {
-      loadStems();
-    }
-
+    loadStems();
     return () => {
-      cancelled = true;
       stemPlayers.forEach(p => p?.destroy());
     };
-  }, [song.stems, song.altered, stemContainerRefs.current]);
-
+  }, [song.stems]);
 
   return (
     <div className="bg-white text-black rounded-2xl p-4 shadow-lg space-y-2">
