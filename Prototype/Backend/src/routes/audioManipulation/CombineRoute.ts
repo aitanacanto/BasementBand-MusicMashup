@@ -16,7 +16,7 @@ export const CombineRoute = express.Router();
  * TODO: Need the song durations 
 */
 CombineRoute.post('/Combine/', async (req: Request, res: Response) => {
-    const USE_TIME_STRETCH = false;
+    const USE_TIME_STRETCH = true;
     const EQUALIZE_VOLUME = false;
     
     const songs = req.body as Array<Song>;
