@@ -51,6 +51,8 @@ const AutoGenerate: React.FC = () => {
     const copy = [...alteredSongs];
     for(let i = 0; i < alteredRes.data.length; i ++){
       copy.push(alteredRes.data[i]);
+      
+      /*
       for(let j = 0; j < alteredRes.data[i].stems.length; j ++){
         const fakeSong: Song = {
               mbid: '',
@@ -67,6 +69,7 @@ const AutoGenerate: React.FC = () => {
             };
             copy.push(fakeSong);
       }
+      */
     }
     setAlteredSongs(copy);
   };

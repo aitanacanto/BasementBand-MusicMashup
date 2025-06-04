@@ -56,11 +56,38 @@ const MultiTrack: React.FC<MultiTrackProps> = ({ songs, onReset }) => {
 
       multiTrackRef.current = mt;
 
+      // Events
       mt.on('start-position-change', ({ id, startPosition }) => {
         console.log(`Track ${id} start position updated to ${startPosition}`);
       });
 
-      // ... más eventos omitidos por brevedad ...
+      mt.on('start-cue-change', ({ id, startCue }) => {
+        console.log(`Track ${id} start cue updated to ${startCue}`);
+      });
+
+      mt.on('end-cue-change', ({ id, endCue }) => {
+        console.log(`Track ${id} end cue updated to ${endCue}`);
+      });
+
+      mt.on('volume-change', ({ id, volume }) => {
+        console.log(`Track ${id} volume updated to ${volume}`);
+      });
+
+      mt.on('fade-in-change', ({ id, fadeInEnd }) => {
+        console.log(`Track ${id} fade-in updated to ${fadeInEnd}`);
+      });
+
+      mt.on('fade-out-change', ({ id, fadeOutStart }) => {
+        console.log(`Track ${id} fade-out updated to ${fadeOutStart}`);
+      });
+
+      mt.on('intro-end-change', ({ id, endTime }) => {
+        console.log(`Track ${id} intro end updated to ${endTime}`);
+      });
+
+      mt.on('envelope-points-change', ({ id, points }) => {
+        console.log(`Track ${id} envelope points updated to`, points);
+      });
     });
 
     return () => {
@@ -91,7 +118,7 @@ const MultiTrack: React.FC<MultiTrackProps> = ({ songs, onReset }) => {
       multiTrackRef.current.destroy();
       multiTrackRef.current = null;
     }
-    onReset(); // notifica al padre que borre las canciones
+    onReset(); 
   };
 
   return (
