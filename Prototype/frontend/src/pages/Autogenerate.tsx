@@ -71,7 +71,6 @@ const AutoGenerate: React.FC = () => {
   };
 
   return (
-    
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
@@ -100,7 +99,8 @@ const AutoGenerate: React.FC = () => {
         trackedSongs={trackedSongs}
         setTrackedSongs={setTrackedSongs}
       />
-      {!displayMashup ? 
+
+      {!displayMashup ? (
         <div>
           {trackedSongs.map((song, idx) => (
             <motion.div
@@ -126,8 +126,12 @@ const AutoGenerate: React.FC = () => {
             </motion.div>
           ))}
 
-
-          {multiTrackedSongs.length > 0 && <MultiTrack songs={multiTrackedSongs} />}
+          {multiTrackedSongs.length > 0 && (
+            <MultiTrack
+              songs={multiTrackedSongs}
+              onReset={() => setMultiTrackedSongs([])}
+            />
+          )}
 
           <motion.div
             className="flex justify-center"
@@ -135,16 +139,15 @@ const AutoGenerate: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
           >
-            <Button onClick={handleMashup} className="mt-8 px-8 py-3 text-lg bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 shadow-xl">
-              {!mashupLoading ? "🚀 Create Mashup" : 
-              <>
-                <LoadingSpinner />
-              </>
-              }
+            <Button
+              onClick={handleMashup}
+              className="mt-8 px-8 py-3 text-lg bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 shadow-xl"
+            >
+              {!mashupLoading ? "🚀 Create Mashup" : <LoadingSpinner />}
             </Button>
           </motion.div>
         </div>
-        :
+      ) : (
         <div>
           {alteredSongs.map((song, idx) => (
             <motion.div
@@ -170,10 +173,15 @@ const AutoGenerate: React.FC = () => {
             </motion.div>
           ))}
 
-
-          {multiTrackedSongs.length > 0 && <MultiTrack songs={multiTrackedSongs} />}
-      </div>}
-  </motion.div>
+          {multiTrackedSongs.length > 0 && (
+            <MultiTrack
+              songs={multiTrackedSongs}
+              onReset={() => setMultiTrackedSongs([])}
+            />
+          )}
+        </div>
+      )}
+    </motion.div>
   );
 };
 
