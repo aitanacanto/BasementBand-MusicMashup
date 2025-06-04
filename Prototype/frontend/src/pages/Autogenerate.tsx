@@ -50,10 +50,11 @@ const AutoGenerate: React.FC = () => {
     //have to make a fake song for each stem because I dont wanna mess with the multitrack code
     const copy = [...alteredSongs];
     for(let i = 0; i < alteredRes.data.length; i ++){
+      copy.push(alteredRes.data[i]);
       for(let j = 0; j < alteredRes.data[i].stems.length; j ++){
         const fakeSong: Song = {
               mbid: '',
-              title: alteredRes.data[i].stems[j].split("/")[4],
+              title: alteredRes.data[i].stems[j].split("/")[3][4],
               artist: '',
               key: '',
               key_scale: '',
