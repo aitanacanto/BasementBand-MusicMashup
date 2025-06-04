@@ -47,29 +47,11 @@ const AutoGenerate: React.FC = () => {
     });
     setDisplayMashup(true);
     setMashupLoading(false);
-    //have to make a fake song for each stem because I dont wanna mess with the multitrack code
+
     const copy = [...alteredSongs];
     for(let i = 0; i < alteredRes.data.length; i ++){
       copy.push(alteredRes.data[i]);
       
-      /*
-      for(let j = 0; j < alteredRes.data[i].stems.length; j ++){
-        const fakeSong: Song = {
-              mbid: '',
-              title: alteredRes.data[i].stems[j].split("/")[3][4],
-              artist: '',
-              key: '',
-              key_scale: '',
-              bpm: 0,
-              genre: '',
-              danceability: 0,
-              first_beat: 0,
-              filepath: alteredRes.data[i].stems[j],
-              stems: null
-            };
-            copy.push(fakeSong);
-      }
-      */
     }
     setAlteredSongs(copy);
   };
