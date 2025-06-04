@@ -27,6 +27,15 @@ CombineRoute.post('/Combine/', async (req: Request, res: Response) => {
     const base = songs[0];
     if(sessionId){
         const alteredSongs: Song[] = [];
+
+        //Also push base song while avoiding augmenting it earlier
+        //We still want to stem separate it
+        if(EQUALIZE_VOLUME){
+            const equalizedBase: Song | null = await equalizeVolume(sessionId, base);
+            if(equalizedBase) alteredSongs.push(equalizedBase);
+        }
+        else alteredSongs.push(base);
+        
         for(let i = 1; i < songs.length; i ++){
             let huskSong: Song | null = songs[i];
             if(USE_TIME_STRETCH){
@@ -40,13 +49,7 @@ CombineRoute.post('/Combine/', async (req: Request, res: Response) => {
             if(huskSong != null) alteredSongs.push(huskSong);
             else res.status(500).send("Failed to stretch provided song");
         }
-        //Also push base song while avoiding augmenting it earlier
-        //We still want to stem separate it
-        if(EQUALIZE_VOLUME){
-            const equalizedBase: Song | null = await equalizeVolume(sessionId, base);
-            if(equalizedBase) alteredSongs.push(equalizedBase);
-        }
-        else alteredSongs.push(base);
+
         //Pass song file     
         for(let i = 0; i < alteredSongs.length; i ++){
             const songPath = songs[i].filepath;
