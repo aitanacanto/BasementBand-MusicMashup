@@ -112,6 +112,7 @@ const AutoGenerate: React.FC = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: idx * 0.2 }}
+              className="mb-5"
             >
               <WaveformPlayer
                 song={song}
@@ -159,6 +160,7 @@ const AutoGenerate: React.FC = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: idx * 0.2 }}
+              className="mb-5"
             >
               <WaveformPlayer
                 song={song}

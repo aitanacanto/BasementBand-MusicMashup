@@ -123,7 +123,7 @@ const MultiTrack: React.FC<MultiTrackProps> = ({ songs, onReset }) => {
 
   return (
     <div className="bg-white text-black p-6 rounded-lg shadow-md">
-      <h3 className="text-xl font-bold mb-4">🎚 MultiTrack Mixer</h3>
+      <h3 className="text-xl font-bold mb-4"> MultiTrack Mixer</h3>
       <div id="container" ref={containerRef} />
       <div className="mt-4 flex flex-wrap gap-4">
         <button
