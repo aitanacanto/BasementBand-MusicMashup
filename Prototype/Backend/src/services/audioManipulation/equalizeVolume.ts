@@ -1,7 +1,5 @@
 import { ChildProcessWithoutNullStreams, spawn } from "child_process";
 import { Song } from "../../types/song"
-import { json } from "stream/consumers";
-import { error } from "console";
 import { LoudnormMeasuredStats } from "../../types/LoudnormMeasuredStats";
 import path from "path";
 import { MEDIA_FILE_PATH } from "../..";
@@ -62,7 +60,6 @@ export const equalizeVolume = async (folderPath:string , song: Song): Promise<So
             }
         }catch(err){
             console.error(err);
-            throw error;
         }
     }
 
@@ -100,7 +97,6 @@ export const equalizeVolume = async (folderPath:string , song: Song): Promise<So
             return outputPath;
         } catch(err){
             console.error("Failed to run normalization command" + err);
-            throw error;
         }
     }
 

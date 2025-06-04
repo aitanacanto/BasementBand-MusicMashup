@@ -1,6 +1,7 @@
 import { spawn } from "child_process";
 import * as path from "path";
 import * as fs from "fs/promises";
+import { MEDIA_FILE_PATH } from "..";
 
 /**
  * Runs Demucs stem separation on a given local audio file.
@@ -19,9 +20,9 @@ export async function runDemucs(audioFilePath: string, outputDir: string): Promi
     const resolvedAudioPath = path.resolve(audioFilePath);
     const trackName = path.basename(audioFilePath, path.extname(audioFilePath)).replace(/[^a-zA-Z0-9-_]/g, '_');
     const modelName = "htdemucs"; // default model used by Demucs
-
+    const absoluteOutputDir = path.posix.join(process.cwd(), MEDIA_FILE_PATH ,outputDir);
     const demucsProcess = spawn("demucs", [
-      "--out", outputDir,
+      "--out", absoluteOutputDir,
       "--filename", `${trackName}/{stem}.wav`,
       resolvedAudioPath
     ]);
@@ -38,17 +39,19 @@ export async function runDemucs(audioFilePath: string, outputDir: string): Promi
       const outputFolder = path.join(outputDir, modelName, trackName);
 
       try {
-        const files = await fs.readdir(outputFolder);
-        console.log("Files in folder:", files);
+        //const files = await fs.readdir(outputFolder);
+        //console.log("Files in folder:", files);
 
         const stemFiles = ["vocals.wav", "drums.wav", "bass.wav", "other.wav"];
-        const stems = stemFiles
+        /*const stems = stemFiles
           .filter(file => files.includes(file))
           .map(file => {
-            const relativePath = path.join(path.basename(outputDir), modelName, trackName, file);
+            const relativePath = path.posix.join(outputDir, modelName, trackName, file);
             return relativePath.replace(/\\/g, "/");
-          });
-
+          });*/
+        const stems = stemFiles.map((file) => {
+          return path.posix.join(outputDir, modelName, trackName, file);
+        })
         console.log("Final stems array:", stems);
         resolve(stems.length > 0 ? stems : null);
       } catch (err) {

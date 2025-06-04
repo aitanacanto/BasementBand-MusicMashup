@@ -16,6 +16,9 @@ export const CombineRoute = express.Router();
  * TODO: Need the song durations 
 */
 CombineRoute.post('/Combine/', async (req: Request, res: Response) => {
+    const USE_TIME_STRETCH = false;
+    const EQUALIZE_VOLUME = false;
+    
     const songs = req.body as Array<Song>;
     if(songs.length <= 1){
         res.status(400).send("Must provide at least two different songs");
@@ -25,36 +28,41 @@ CombineRoute.post('/Combine/', async (req: Request, res: Response) => {
     if(sessionId){
         const alteredSongs: Song[] = [];
         for(let i = 1; i < songs.length; i ++){
-            const stretchedSong: Song = await timeStretch(base, songs[i], sessionId);
-            const equalizedSong: Song | null = await equalizeVolume(sessionId, stretchedSong);
-            if(equalizedSong != null){
-                alteredSongs.push(equalizedSong);
+            let huskSong: Song | null = songs[i];
+            if(USE_TIME_STRETCH){
+                huskSong = await timeStretch(base, songs[i], sessionId);
             }
+            if(EQUALIZE_VOLUME){
+                if(huskSong != null){
+                    huskSong = await equalizeVolume(sessionId, huskSong);
+                }
+            }
+            if(huskSong != null) alteredSongs.push(huskSong);
             else res.status(500).send("Failed to stretch provided song");
         }
         //Also push base song while avoiding augmenting it earlier
         //We still want to stem separate it
-        alteredSongs.push(base);
-        //Pass song file
-        for (let i = 0; i < alteredSongs.length; i++) {
-        const songPath = songs[i].filepath;
-        if (songPath != null) {
-            const absoluteSongPath: string = path.posix.join(process.cwd(), MEDIA_FILE_PATH, songPath);
-
-            if (absoluteSongPath != null) {
-            const outputDir: string = path.posix.join(process.cwd(), MEDIA_FILE_PATH, sessionId, "stems");
-
-            const stems: Array<string> | null = await runDemucs(absoluteSongPath, outputDir);
-
-            if (stems != null) {
-                alteredSongs[i].stems = stems;
-            }
-            } else {
-            res.status(500).send("Song filepath wrong");
-            }
-        } else {
-            res.status(500).send("Failed to separate songs stems");
+        if(EQUALIZE_VOLUME){
+            const equalizedBase: Song | null = await equalizeVolume(sessionId, base);
+            if(equalizedBase) alteredSongs.push(equalizedBase);
         }
+        else alteredSongs.push(base);
+        //Pass song file     
+        for(let i = 0; i < alteredSongs.length; i ++){
+            const songPath = songs[i].filepath;
+            if(songPath != null){
+                const absoluteSongPath: string = path.posix.join(process.cwd(), MEDIA_FILE_PATH, songPath);
+                if(absoluteSongPath != null){
+                    const outputDir = path.posix.join(sessionId, "stems");
+                    const stems: Array<string> | null = await runDemucs(absoluteSongPath, outputDir);
+                    if(stems != null){
+                        alteredSongs[i].stems = stems;
+                    }
+                }
+                else res.status(500).send("Song filepath wrong")
+            }
+            else res.status(500).send("Failed to separate songs stems")
         }
+        res.send(alteredSongs);
     }
 });

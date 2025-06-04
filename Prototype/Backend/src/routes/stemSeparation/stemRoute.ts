@@ -21,9 +21,9 @@ StemRoute.post("/run-demucs", async (req, res) => {
       return;
     }
 
-    const absoluteSongPath = path.join(process.cwd(), MEDIA_FILE_PATH, song.filepath);
+    const absoluteSongPath = path.posix.join(process.cwd(), MEDIA_FILE_PATH, song.filepath);
 
-    const outputDir = path.join(process.cwd(), MEDIA_FILE_PATH, sessionId, "stems");
+    const outputDir = path.posix.join(sessionId, "stems");
 
     const stems = await runDemucs(absoluteSongPath, outputDir);
 

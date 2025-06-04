@@ -9,12 +9,16 @@ import MultiTrack from '@/components/MultiTrack';
 import { CutRange } from '@/components/types/CutRange';
 import axios from 'axios';
 import WaveformPlayer from '@/components/WaveformPlayer';
+import LoadingSpinner from '@/components/ui/LoadingSpinner';
 
 const AutoGenerate: React.FC = () => {
   const [selectedSongs, setSelectedSongs] = useState<{ rootSong: Song; similarSongs: Song[] | null }[]>([]);
   const [trackedSongs, setTrackedSongs] = useState<Song[]>([]);
   const [multiTrackedSongs, setMultiTrackedSongs] = useState<Song[]>([]);
   const [cutTimeStamp, setCutTimeStamp] = useState<CutRange>({ timestamp1: null, timestamp2: null });
+  const [alteredSongs, setAlteredSongs] = useState<Song[]>([]);
+  const [displayMashup, setDisplayMashup] = useState<boolean>(false);
+  const [mashupLoading, setMashupLoading] = useState<boolean>(false);
 
   const handleRemoveTrackedSong = (index: number) => {
     setTrackedSongs((prevTrackedSongs) => {
@@ -36,14 +40,38 @@ const AutoGenerate: React.FC = () => {
   };
 
   const handleMashup = async () => {
+    setMashupLoading(true);
     const alteredRes = await axios.post(`http://localhost:50000/Combine/`, trackedSongs, {
       withCredentials: true,
       headers: { 'Content-Type': 'application/json' },
     });
-    alteredRes.data.forEach((s: Song) => handleAddToMultiTrack(s));
+    setDisplayMashup(true);
+    setMashupLoading(false);
+    //have to make a fake song for each stem because I dont wanna mess with the multitrack code
+    const copy = [...alteredSongs];
+    for(let i = 0; i < alteredRes.data.length; i ++){
+      for(let j = 0; j < alteredRes.data[i].stems.length; j ++){
+        const fakeSong: Song = {
+              mbid: '',
+              title: alteredRes.data[i].stems[j].split("/")[4],
+              artist: '',
+              key: '',
+              key_scale: '',
+              bpm: 0,
+              genre: '',
+              danceability: 0,
+              first_beat: 0,
+              filepath: alteredRes.data[i].stems[j],
+              stems: null
+            };
+            copy.push(fakeSong);
+      }
+    }
+    setAlteredSongs(copy);
   };
 
   return (
+    
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
@@ -72,45 +100,80 @@ const AutoGenerate: React.FC = () => {
         trackedSongs={trackedSongs}
         setTrackedSongs={setTrackedSongs}
       />
+      {!displayMashup ? 
+        <div>
+          {trackedSongs.map((song, idx) => (
+            <motion.div
+              key={idx}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: idx * 0.2 }}
+            >
+              <WaveformPlayer
+                song={song}
+                index={idx}
+                onRemove={handleRemoveTrackedSong}
+                onAddToMultiTrack={handleAddToMultiTrack}
+                cutTimeStamp={cutTimeStamp}
+                setCutTimeStamp={setCutTimeStamp}
+                onCutFinished={handleCutFinished}
+                onUpdateSong={(newSong) =>
+                  setTrackedSongs(prev =>
+                    prev.map((s, i) => i === idx ? newSong : s)
+                  )
+                }
+              />
+            </motion.div>
+          ))}
 
-      {trackedSongs.map((song, idx) => (
-        <motion.div
-          key={idx}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: idx * 0.2 }}
-        >
-          <WaveformPlayer
-            song={song}
-            index={idx}
-            onRemove={handleRemoveTrackedSong}
-            onAddToMultiTrack={handleAddToMultiTrack}
-            cutTimeStamp={cutTimeStamp}
-            setCutTimeStamp={setCutTimeStamp}
-            onCutFinished={handleCutFinished}
-            onUpdateSong={(newSong) =>
-              setTrackedSongs(prev =>
-                prev.map((s, i) => i === idx ? newSong : s)
-              )
-            }
-          />
-        </motion.div>
-      ))}
+
+          {multiTrackedSongs.length > 0 && <MultiTrack songs={multiTrackedSongs} />}
+
+          <motion.div
+            className="flex justify-center"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+          >
+            <Button onClick={handleMashup} className="mt-8 px-8 py-3 text-lg bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 shadow-xl">
+              {!mashupLoading ? "🚀 Create Mashup" : 
+              <>
+                <LoadingSpinner />
+              </>
+              }
+            </Button>
+          </motion.div>
+        </div>
+        :
+        <div>
+          {alteredSongs.map((song, idx) => (
+            <motion.div
+              key={idx}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: idx * 0.2 }}
+            >
+              <WaveformPlayer
+                song={song}
+                index={idx}
+                onRemove={handleRemoveTrackedSong}
+                onAddToMultiTrack={handleAddToMultiTrack}
+                cutTimeStamp={cutTimeStamp}
+                setCutTimeStamp={setCutTimeStamp}
+                onCutFinished={handleCutFinished}
+                onUpdateSong={(newSong) =>
+                  setTrackedSongs(prev =>
+                    prev.map((s, i) => i === idx ? newSong : s)
+                  )
+                }
+              />
+            </motion.div>
+          ))}
 
 
-      {multiTrackedSongs.length > 0 && <MultiTrack songs={multiTrackedSongs} />}
-
-      <motion.div
-        className="flex justify-center"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8 }}
-      >
-        <Button onClick={handleMashup} className="mt-8 px-6 py-3 text-lg bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 shadow-xl">
-          🚀 Create Mashup
-        </Button>
-      </motion.div>
-    </motion.div>
+          {multiTrackedSongs.length > 0 && <MultiTrack songs={multiTrackedSongs} />}
+      </div>}
+  </motion.div>
   );
 };
 

@@ -57,7 +57,7 @@ const WaveformPlayer: React.FC<Props> = ({
 
           waveSurfer.current?.loadBlob(response.data);
           console.log('FilePath:', song.filepath);
-
+          /*
           const res = await axios.post('http://localhost:50000/api/stem/run-demucs', song, {
             withCredentials: true,
             headers: { 'Content-Type': 'application/json' },
@@ -71,7 +71,7 @@ const WaveformPlayer: React.FC<Props> = ({
             onUpdateSong(updatedSong);
           } else {
             console.log('No stems returned');
-          }
+          }*/
         } catch (error) {
           console.error('Error in fetchAndLoad or Demucs:', error);
         }
@@ -119,7 +119,7 @@ const WaveformPlayer: React.FC<Props> = ({
   const handleToggleDropdown = async () => {
     const next = !showDropdown;
     setShowDropdown(next);
-
+    console.log("Look here" + song.stems, next);
     if (next) {
       if (!song.stems || song.stems.length === 0) {
         setLoadingStems(true);
@@ -127,11 +127,11 @@ const WaveformPlayer: React.FC<Props> = ({
       }
       setLoadingStems(true);
       const players: (WaveSurfer | null)[] = [];
-
+      console.log(song, song.stems.length);
       for (let i = 0; i < song.stems.length; i++) {
+        console.log("Look here" + song.stems[i]);
         const container = stemContainers.current[i];
         if (!container) continue;
-
         const ws = WaveSurfer.create({
           container,
           waveColor: '#f59e0b',
@@ -139,13 +139,16 @@ const WaveformPlayer: React.FC<Props> = ({
           height: 60,
           responsive: true,
         });
-
+        console.log("Is continuing to the try block?")
         try {
+          console.log("Song stems again: " + song.stems[i])
           const res = await axios.get(`http://localhost:50000/GetFile/${encodeURIComponent(song.stems[i])}`, {
             responseType: 'blob',
             withCredentials: true,
           });
+          console.log("Get FIle Response: " + res.data);
           ws.loadBlob(res.data);
+          console.log("WaveForm: " +  ws);
         } catch (err) {
           console.error('Stem load error:', err);
         }
@@ -186,7 +189,7 @@ const WaveformPlayer: React.FC<Props> = ({
           onClick={handleToggleDropdown}
           className="mt-4 text-sm font-semibold text-blue-600 hover:text-blue-300 transition-colors duration-200"
         >
-          ▸ Stems
+          {showDropdown ? "▾ Stems" : "▸ Stems"}
         </button>
         {showDropdown && (
           <div className="mt-2 border border-gray-300 p-2 rounded bg-gray-50 text-sm text-gray-600 space-y-4">
