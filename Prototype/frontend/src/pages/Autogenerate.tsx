@@ -69,8 +69,8 @@ const AutoGenerate: React.FC = () => {
         transition={{ duration: 1 }}
         className="mb-6 text-center"
       >
-        <h1 className="text-5xl font-extrabold text-white">🔁 MashGenX</h1>
-        <p className="text-xl italic text-gray-300 mt-2">Generate your own mashup</p>
+        <h1 className="text-5xl font-extrabold text-white">🔁 Basement Band</h1>
+        <p className="text-xl italic text-gray-300 mt-2">Create your own mashup</p>
       </motion.div>
 
       <SongSearch onAdd={(rootSong, similarSongs) => {

@@ -26,7 +26,7 @@ const Home: React.FC = () => {
               transition={{ duration: 1, delay: 0.3 }}
               className="text-5xl font-extrabold mb-6 bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 text-transparent bg-clip-text"
             >
-              🎶 Welcome to MashGenX
+              🎶 Welcome to Basement Band
             </motion.h1>
             <motion.p
               initial={{ opacity: 0, y: 10 }}
