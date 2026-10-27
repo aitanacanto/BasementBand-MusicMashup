@@ -1,107 +1,123 @@
-# Music Mashup-241 project
+<div align="center">
 
-# Setting up the prototype on your machine
+# Basement Band
 
-First if you do not have Node.js installed you will need to do so by navigating to their website and installing version v20.19.1 for your operating system onto your machine. We are using this version because it is stable and the closest to the version on my computer which should reduce potential errors created by changes in new versions of node.
+### Discover tracks. Explore stems. Build a mashup.
 
-Clone the repository which will contain the backend and frontend folders containing the project files. In your cloned repository navigate to the backend folder and type:
-npm install
+An academic team project combining music discovery with a visual audio workspace.
 
-This will install all necessary backend dependencies required for the project on your computer.
+**TypeScript · React · Vite · Tailwind CSS · Node.js · Express · WaveSurfer.js · Demucs**
 
-Repeat this for the frontend folder (there will probably be less dependencies here)
+[Screenshots](#screenshots) · [Architecture](docs/ARCHITECTURE.md) · [Local setup](docs/SETUP.md) · [Team](#team)
 
-In order to test the app both the backend server and frontend need to be running, here is how"
+<img src="docs/screenshots/home.png" alt="Original Basement Band welcome screen with its musical background" width="960" />
 
-## Running backend
+</div>
 
-type: npm run dev
-This will run the development script and start the backend
+## The project
 
-backend should run on port 5000 unless there is something else running on that port.
+**Basement Band** is the application developed for the **Music Mashup** project in **COMPX241-25A · Software Engineering Design 1**, at **The University of Waikato (2025)**. It brings together song search, musical metadata, waveform playback and a multitrack workspace. The backend integrates audio tools for downloading source material, adjusting tempo, cutting clips and separating vocals, drums, bass and other instruments.
 
-If your port is occupied terminate whatever is running on it.
+This repository preserves an academic prototype. It includes the original application code, its collaborative history and documentation of the implemented workflow. Audio processing depends on external services and locally installed tools; a successful frontend build does not establish that the complete processing pipeline works.
 
-## Running frontend
+## Screenshots
 
-type: npm run dev
-This will run the development script and start the frontend
+<table>
+  <tr>
+    <td align="center"><a href="docs/screenshots/editor.png"><img src="docs/screenshots/editor.png" width="450" alt="Original editor with its title and artist search fields" /></a></td>
+    <td align="center"><a href="docs/screenshots/mixer-demo.png"><img src="docs/screenshots/mixer-demo.png" width="450" alt="Original waveform and multitrack components displaying synthetic demo audio" /></a></td>
+  </tr>
+  <tr><td align="center">Search and selection workspace</td><td align="center">Waveforms and multitrack mixer · synthetic audio demo</td></tr>
+  <tr>
+    <td align="center"><a href="docs/screenshots/similar-songs-demo.jpg"><img src="docs/screenshots/similar-songs-demo.jpg" width="450" alt="Original Similar Songs panel displaying four fictional example tracks" /></a></td>
+    <td align="center"><a href="docs/screenshots/track-info-demo.jpg"><img src="docs/screenshots/track-info-demo.jpg" width="450" alt="Original Track Info panel showing fictional genre, key, tempo and danceability values" /></a></td>
+  </tr>
+  <tr><td align="center">Similar-song selection · fictional example data</td><td align="center">Song metadata · fictional example data</td></tr>
+</table>
 
-Frontend should run on port 3000 unless there is something else running on that port. If this is the case REACT will ask you if you want to run the frontend on a different port.
+The welcome screen and empty editor are captures of the original frontend running locally. The populated mixer is a **visual demonstration with two locally generated synthetic audio tracks**, loaded in an isolated temporary copy. It uses the original waveform and mixer components; no online download or Demucs separation was performed for that image. Temporary fixture code and audio are not part of this repository.
 
-## How it works
+The **Similar Songs** and **Track Info** captures show the original dialogs using fictional songs and metadata in an isolated temporary copy. They demonstrate the selection and information interface; they are not live MusicBrainz/AcousticBrainz recommendations. No audio was downloaded for these two captures. Click a capture to view it at full size.
 
-In your browser navigate to the frontend url: http://localhost:3000
-Assuming your frontend is running you should see whatever is on the frontend in your browser window. You do not need to navigate to the backend url.
+## Implemented areas
 
-The backend needs to be running in order to send and recieve requests from the frontend. The frontend sends GET requests to the backend which performs some sort of logic and returns data via a POST request in the JSON format. The frontend can then do whatever it wants with this data.
+| Area | What the prototype contains |
+| --- | --- |
+| Discovery | Search by title and artist, musical metadata, and similarity queries through MusicBrainz and AcousticBrainz. |
+| Selection | Selected-song list, song information dialogs and related-song selection. |
+| Waveforms | Audio waveform display, playback controls and clip-cut requests. |
+| Multitrack | A visual workspace with draggable tracks, volume envelopes, fades, seeking and zoom. |
+| Processing | Backend integration with yt-dlp, FFmpeg, Rubber Band and Demucs. |
+| Sessions | Cookie-based temporary workspaces for audio files. |
 
-If you are testing your backend code you can use the terminal to see the output of your error handling. If you want to test it with the frontend both need to be running.
+Some processing options are present in code but disabled in the current combination route, including volume equalisation. See [architecture and API](docs/ARCHITECTURE.md) for the boundaries between the interface and the audio pipeline.
 
-## Development
+## Team
 
-Make changes to the files as you develop the project. Refer to the github workflow guide by Aitana for how to commit your work to the repo.
+Developed collaboratively by four students, with responsibilities documented in the project reports and Git history.
 
-## Additional dependancies
+| Team member | Role and contribution areas |
+| --- | --- |
+| Aitana Cantó Rico | **GitHub Project Manager and frontend lead:** repository setup, branch workflow, integration and merge-conflict resolution; React interface, waveform player, multitrack mixer and frontend/backend integration. |
+| Frankie Christie | MusicBrainz/AcousticBrainz integration and similar-song route; song information dialogs and shared loading UI. |
+| Connor Ford | Audio downloads, session file handling, cutting, tempo adjustment, volume normalisation and the combined processing pipeline. |
+| Marvi Karibule | Demucs integration, stem-separation service and its backend route. |
 
-In order to use most of these functions you will need a number of command line tools installed on your machine. These will also need to be configured to the path of your machine.
+**Project managers:** Sabina Han and Aryan Thanki.
 
-### yt-dlp
+The team used individual branches and a shared integration branch. Aitana coordinated GitHub integration, helped teammates with repository setup and conflicts, and wrote the [team workflow guide](docs/GITHUB_WORKFLOW.md). Responsibilities overlapped during integration.
 
-1. Go to this link and download the recommended yt-dlp.exe:
-   https://github.com/yt-dlp/yt-dlp?tab=readme-ov-file#installation
+## Architecture at a glance
 
-2. Create a folder called yt-dlp in your C drive and put the .exe file inside it
+```mermaid
+flowchart LR
+    UI["React / TypeScript"] --> API["Express API"]
+    UI --> WAVES["WaveSurfer / Multitrack"]
+    API --> META["MusicBrainz / AcousticBrainz"]
+    API --> AUDIO["yt-dlp / FFmpeg / Rubber Band / Demucs"]
+    AUDIO --> FILES["Temporary session media"]
+    API --> FILES
+```
 
-3. Type Edit the environment and system variables (on windows) into the start menu search bar.
+## Repository layout
 
-4. Open the environment and system variables editor and click the environment variables button.
+```text
+Prototype/
+  frontend/
+    src/pages/              Welcome page and creation workspace
+    src/components/         Search, selection, waveform and multitrack UI
+    src/components/ui/      Shared interface elements
+    src/components/types/   Frontend data contracts
+    public/                 Original static assets
+  Backend/
+    src/routes/             HTTP endpoints grouped by capability
+    src/services/           Metadata and audio-tool integrations
+    src/stemSeparation/      Demucs process integration
+    src/cookieManagement/   Temporary session handling
+    src/types/              Backend data contracts
+docs/
+  screenshots/              Application captures
+  SETUP.md                  Prerequisites and local startup
+  ARCHITECTURE.md           Data flow and API reference
+  GITHUB_WORKFLOW.md        Original team workflow guide
+```
 
-5. Click on the variable Path under system variables (The bottom box) then click the edit button
+## Run locally
 
-6. Click the new button then put the path to the yt-dlp folder in the text box Then press okay.
+The [setup guide](docs/SETUP.md) describes the two applications and the separate audio dependencies. In the current source, the frontend expects the backend at **localhost:50000**, and the backend allows the Vite origin **localhost:5173**.
 
-7. Press okay again to save your changes. You can restart your machine now or better after you have done all of your command line dependancy installations.
+For the interface alone:
 
-### FFMPEG
+```sh
+cd Prototype/frontend
+npm ci
+npm run dev
+```
 
-1. Download ffmpeg-git-full.7z from https://www.gyan.dev/ffmpeg/builds/
+Open the URL printed by Vite. Search and processing operations require the backend and their external dependencies.
 
-2. Extract the .zip file to your C drive and rename the folder ffmpeg
+## Prototype status
 
-3. Type Edit the environment and system variables (on windows) into the start menu search bar.
+The original project report identifies three unfinished areas: exporting the final mashup, shifting songs into a common musical key, and reliable similar-song recommendations. Download and stem-separation latency were also noted. Tempo adjustment is implemented separately from musical-key matching; the mixer provides interactive arrangement and playback rather than a completed export workflow.
 
-4. Open the environment and system variables editor and click the environment variables button.
-
-5. Click on the variable Path under system variables (The bottom box) then click the edit button
-
-6. Click the new button then put the path to the ffmpeg folders bin directory in the text box Then press okay.
-
-7. Press okay again to save your changes. You can restart your machine now or better after you have done all of your command line dependancy installations.
-
-### Rubberband
-
-1. Download the relevant executable binaries from this link: https://breakfastquay.com/rubberband/ 
-
-2. Unzip the folder to your C drive (or any location) and rename the folder rubberband
-
-3. Type Edit the environment and system variables (on windows) into the start menu search bar.
-
-4. Open the environment and system variables editor and click the environment variables button.
-
-5. Click on the variable Path under system variables (The bottom box) then click the edit button
-
-6. Click the new button then put the path to the rubberband folder in the text box Then press okay.
-
-### Demucs
-
-1. Run the following command in your terminal: pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu 
-
-2. Then Run this in your terminal: pip install -U demucs
-
-Your path variables should look something like:
-
-C:\yt-dlp
-C:\FFMPEG\bin
-C:\rubberband
-
+The original frontend produced a Vite build and its welcome page and editor rendered locally. Separate TypeScript checks report existing diagnostics in both projects. This presentation update preserves those source files and dependency versions; it does not resolve application defects or establish production readiness. See [setup notes](docs/SETUP.md#validation-boundaries).

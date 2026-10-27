@@ -1,23 +1,23 @@
-# Node dependencies
+# Dependencies and generated bundles
 node_modules/
-
-# Build outputs
 dist/
 build/
-
-# Logs
-*.log
-
-# Environment variables
-.env
-
-# OS-specific files
-.DS_Store
-
-# TypeScript
+coverage/
 *.tsbuildinfo
 
-# Temp files
+# Local environment and logs
+.env
+.env.*
+!.env.example
+*.log
 *.tmp
+
+# Audio sessions and generated media
+Prototype/Backend/media/
 Prototype/frontend/public/songs/
-Prototype/Backend/media
+
+# Editors and operating system
+.DS_Store
+Thumbs.db
+.idea/
+*.swp

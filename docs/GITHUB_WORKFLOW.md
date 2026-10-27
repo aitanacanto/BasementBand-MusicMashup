@@ -1,44 +1,44 @@
-# 🎓 GitHub Workflow Guide for Our Music Mashup Project
+# GitHub Workflow Guide for Our Music Mashup Project
 
 
 
-## 🚧 Our Branching Strategy
+## Our Branching Strategy
 
 We use the following branches:
 
-### ✅ `main`
+### `main`
 - The **official, stable version** of our project.
 - Managed **only by Aitana** (me).
 - **Do not push to this branch** unless instructed.
 
-### 🔄 `develop`
+### `develop`
 - The **integration branch** where we'll merge everyone's code.
 - Only push here if your code:
   - Compiles successfully
   - Is bug-free (as much as possible)
   - Is stable and ready for review
 
-### 👤 Your personal branch (`yourname`)
+### Your personal branch (`yourname`)
 - Everyone has their **own branch** named after them.
 - You'll work only on your personal branch and merge to `develop` when ready.
 
 ---
 
-## 🧰 Initial Setup (One Time Only)
+## Initial Setup (One Time Only)
 
-1. 🔽 **Clone the repository** to your computer:
+1. **Clone the repository** to your computer:
 ```bash
 git clone https://github.com/username/Music_Mashup-241_project.git
 cd Music_Mashup-241_project
 ```
 
-2. 👀 **List all remote branches** to find yours:
+2. **List all remote branches** to find yours:
 ```bash
 git fetch
 git branch -r
 ```
 
-3. 🆕 **Checkout your personal branch locally**:
+3. **Checkout your personal branch locally**:
 ```bash
 git checkout -b yourname origin/yourname
 ```
@@ -47,7 +47,7 @@ git checkout -b yourname origin/yourname
 
 ---
 
-## 🛠 Daily Workflow
+## Daily Workflow
 
 ### Step 1: Switch to your branch
 ```bash
@@ -80,7 +80,7 @@ git push origin yourname
 
 ---
 
-## 🧪 Merging into `develop`
+## Merging into `develop`
 
 When your code is ready:
 
@@ -104,16 +104,16 @@ git push origin develop
 
 ---
 
-## 🧼 Golden Rules
+## Golden Rules
 
 - ✅ Only push stable, working code to `develop`.
 - 🚫 Never push or merge directly to `main`.
-- 🧪 Always test your changes.
-- 🧠 Communicate if you need help, especially with Git conflicts.
+- Always test your changes.
+- Communicate if you need help, especially with Git conflicts.
 
 ---
 
-## 💬 Need Help?
+## Need Help?
 
 Contact Aitana (me) anytime if:
 - Something breaks

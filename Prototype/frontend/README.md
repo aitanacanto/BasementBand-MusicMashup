@@ -1,46 +1,25 @@
-# Getting Started with Create React App
+# Basement Band · Frontend
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+React and TypeScript interface for the Music Mashup-241 project, built with Vite. It includes the welcome page, song selection, audio waveform players and a multitrack workspace.
 
-## Available Scripts
+## Local interface
 
-In the project directory, you can run:
+```sh
+npm ci
+npm run dev
+```
 
-### `npm start`
+Run these commands in this folder. Open the URL printed by Vite, normally `http://localhost:5173`. The current frontend calls the backend at `http://localhost:50000`.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+## Scripts
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+| Command | Purpose |
+| --- | --- |
+| `npm run dev` | Start the Vite development server. |
+| `npm run build` | Produce the frontend bundle with Vite. |
+| `npm run preview` | Preview a generated build locally. |
+| `npx tsc --noEmit` | Run the separate TypeScript check; the original code currently reports diagnostics. |
 
-### `npm test`
+The package still contains some dependencies inherited from Create React App, but its active scripts use Vite. The generic Create React App instructions have been replaced with this description of the actual scripts.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
-
-### `npm run build`
-
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
-
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
+See the [project overview](../../README.md), [full setup guide](../../docs/SETUP.md) and [architecture](../../docs/ARCHITECTURE.md). The full audio workflow requires the backend and external tools; opening the interface alone does not validate audio processing.
